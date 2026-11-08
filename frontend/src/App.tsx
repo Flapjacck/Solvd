@@ -1,7 +1,9 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { localStore, type Solve } from './lib/db'
 import { averageOf, effectiveMs, formatMs, formatSolve, formatStat, type Penalty } from './lib/time'
+import { SolveList } from './components/SolveList'
+import { SolveDetail } from './components/SolveDetail'
 import { useScramble } from './hooks/useScramble'
 import { useTimer } from './hooks/useTimer'
 
@@ -22,13 +24,19 @@ export default function App() {
     [scramble, next],
   )
 
-  const { state, elapsed, press, release } = useTimer(onStop)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const selectedIndex = selectedId ? solves.findIndex((s) => s.id === selectedId) : -1
+  const selected = selectedIndex >= 0 ? solves[selectedIndex] : undefined
+
+  const { state, elapsed, press, release } = useTimer(onStop, { disabled: !!selected })
 
   const times = useMemo(() => solves.map((s) => effectiveMs(s.timeMs, s.penalty)), [solves])
   const best = useMemo(() => {
     const valid = times.filter((t): t is number => t !== null)
     return valid.length ? Math.min(...valid) : undefined
   }, [times])
+
+  const last = solves[0]
 
   const setPenalty = async (id: string, penalty: Penalty) => {
     await localStore.update(id, { penalty })
@@ -70,6 +78,21 @@ export default function App() {
         hold space until green, release to start, any key to stop
       </p>
 
+      {last && (
+        <div className="flex justify-center gap-3 text-sm">
+          <span className="text-gray-500">last: {formatSolve(last.timeMs, last.penalty)}</span>
+          <button className="underline" onClick={() => void setPenalty(last.id, last.penalty === '+2' ? 'none' : '+2')}>
+            +2
+          </button>
+          <button className="underline" onClick={() => void setPenalty(last.id, last.penalty === 'DNF' ? 'none' : 'DNF')}>
+            DNF
+          </button>
+          <button className="underline" onClick={() => void remove(last.id)}>
+            delete
+          </button>
+        </div>
+      )}
+
       <section className="grid grid-cols-4 gap-2 text-center">
         <div>
           <div className="text-xs text-gray-500">solves</div>
@@ -91,27 +114,17 @@ export default function App() {
 
       <section>
         <h2 className="mb-2 font-bold">Solves</h2>
-        <ol className="flex flex-col gap-1">
-          {solves.map((s, i) => (
-            <li key={s.id} className="flex items-center gap-3 border-b py-1">
-              <span className="w-8 text-gray-500">{solves.length - i}.</span>
-              <span className="w-20">{formatSolve(s.timeMs, s.penalty)}</span>
-              <span className="flex-1 truncate text-xs text-gray-500" title={s.scramble}>
-                {s.scramble}
-              </span>
-              <button className="underline" onClick={() => void setPenalty(s.id, s.penalty === '+2' ? 'none' : '+2')}>
-                +2
-              </button>
-              <button className="underline" onClick={() => void setPenalty(s.id, s.penalty === 'DNF' ? 'none' : 'DNF')}>
-                DNF
-              </button>
-              <button className="underline" onClick={() => void remove(s.id)}>
-                x
-              </button>
-            </li>
-          ))}
-        </ol>
+        <SolveList solves={solves} onSelect={setSelectedId} />
       </section>
+
+      {selected && (
+        <SolveDetail
+          key={selected.id}
+          solve={selected}
+          number={solves.length - selectedIndex}
+          onClose={() => setSelectedId(null)}
+        />
+      )}
     </div>
   )
 }

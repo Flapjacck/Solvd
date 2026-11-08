@@ -8,7 +8,7 @@ const HOLD_MS = 300 // how long space/touch must be held before the timer arms
  * Stackmat-style timer: hold space (or touch) until ready, release to start,
  * press any key / touch to stop.
  */
-export function useTimer(onStop: (ms: number) => void) {
+export function useTimer(onStop: (ms: number) => void, { disabled = false } = {}) {
   const [state, setState] = useState<TimerState>('idle')
   const [elapsed, setElapsed] = useState(0)
 
@@ -64,9 +64,21 @@ export function useTimer(onStop: (ms: number) => void) {
     }
   }, [tick, elapsed])
 
+  // Ignore keys while typing or while a dialog is open (unless a solve is running)
+  const disabledRef = useRef(disabled)
+  useEffect(() => {
+    disabledRef.current = disabled
+  }, [disabled])
+  const ignore = (e: KeyboardEvent) => {
+    if (stateRef.current === 'running') return false
+    const t = e.target as HTMLElement | null
+    const typing = !!t && (t.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName))
+    return disabledRef.current || typing
+  }
+
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.repeat) return
+      if (e.repeat || ignore(e)) return
       if (stateRef.current === 'running') {
         e.preventDefault()
         press()
@@ -76,6 +88,7 @@ export function useTimer(onStop: (ms: number) => void) {
       }
     }
     const up = (e: KeyboardEvent) => {
+      if (ignore(e) && stateRef.current !== 'ready' && stateRef.current !== 'holding') return
       if (e.code === 'Space') {
         e.preventDefault()
         release()
