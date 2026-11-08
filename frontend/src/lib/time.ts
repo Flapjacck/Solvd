@@ -45,3 +45,21 @@ export function formatStat(v: number | null | undefined): string {
   if (v === null) return 'DNF'
   return formatMs(v)
 }
+
+const shortDate = new Intl.DateTimeFormat(undefined, {
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+})
+const longDate = new Intl.DateTimeFormat(undefined, { dateStyle: 'full', timeStyle: 'medium' })
+
+/** Solve timestamp for lists, e.g. "Nov 8, 4:58 PM" (user's locale and time zone) */
+export function formatDateShort(epochMs: number): string {
+  return shortDate.format(epochMs)
+}
+
+/** Full solve timestamp, e.g. "Sunday, November 8, 2026 at 4:58:05 PM" */
+export function formatDateLong(epochMs: number): string {
+  return longDate.format(epochMs)
+}
