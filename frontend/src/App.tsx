@@ -1,9 +1,10 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { localStore, type Solve } from './lib/db'
-import { averageOf, effectiveMs, formatMs, formatSolve, formatStat, type Penalty } from './lib/time'
+import { averageOf, effectiveMs, formatMs, formatSolve, formatStat } from './lib/time'
 import { SolveList } from './components/SolveList'
 import { SolveDetail } from './components/SolveDetail'
+import { SolveActions } from './components/SolveActions'
 import { useScramble } from './hooks/useScramble'
 import { useTimer } from './hooks/useTimer'
 
@@ -37,13 +38,6 @@ export default function App() {
   }, [times])
 
   const last = solves[0]
-
-  const setPenalty = async (id: string, penalty: Penalty) => {
-    await localStore.update(id, { penalty })
-  }
-  const remove = async (id: string) => {
-    await localStore.remove(id)
-  }
 
   const timerColor =
     state === 'holding' ? 'text-red-600' : state === 'ready' ? 'text-green-600' : ''
@@ -79,17 +73,9 @@ export default function App() {
       </p>
 
       {last && (
-        <div className="flex justify-center gap-3 text-sm">
+        <div className="flex items-center justify-center gap-3 text-sm">
           <span className="text-gray-500">last: {formatSolve(last.timeMs, last.penalty)}</span>
-          <button className="underline" onClick={() => void setPenalty(last.id, last.penalty === '+2' ? 'none' : '+2')}>
-            +2
-          </button>
-          <button className="underline" onClick={() => void setPenalty(last.id, last.penalty === 'DNF' ? 'none' : 'DNF')}>
-            DNF
-          </button>
-          <button className="underline" onClick={() => void remove(last.id)}>
-            delete
-          </button>
+          <SolveActions key={last.id} solve={last} />
         </div>
       )}
 

@@ -1,18 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { localStore, type Solve } from '../lib/db'
-import { formatDateLong, formatSolve, type Penalty } from '../lib/time'
+import { formatDateLong, formatSolve } from '../lib/time'
+import { SolveActions } from './SolveActions'
 
 interface Props {
   solve: Solve
   number: number
   onClose: () => void
 }
-
-const PENALTIES: { value: Penalty; label: string }[] = [
-  { value: 'none', label: 'OK' },
-  { value: '+2', label: '+2' },
-  { value: 'DNF', label: 'DNF' },
-]
 
 /** Modal with a solve's time, date, scramble, penalty and an editable note. */
 export function SolveDetail({ solve, number, onClose }: Props) {
@@ -30,11 +25,6 @@ export function SolveDetail({ solve, number, onClose }: Props) {
 
   const close = async () => {
     await saveNotes()
-    onClose()
-  }
-
-  const remove = async () => {
-    await localStore.remove(solve.id)
     onClose()
   }
 
@@ -69,19 +59,6 @@ export function SolveDetail({ solve, number, onClose }: Props) {
           <dd className="break-words">{solve.scramble}</dd>
         </dl>
 
-        <div className="flex gap-2" role="group" aria-label="penalty">
-          {PENALTIES.map((p) => (
-            <button
-              key={p.value}
-              className={`border px-2 ${solve.penalty === p.value ? 'bg-black text-white' : ''}`}
-              aria-pressed={solve.penalty === p.value}
-              onClick={() => void localStore.update(solve.id, { penalty: p.value })}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-
         <label className="flex flex-col gap-1 text-sm">
           <span className="text-gray-500">notes</span>
           <textarea
@@ -93,9 +70,7 @@ export function SolveDetail({ solve, number, onClose }: Props) {
           />
         </label>
 
-        <button className="self-start text-red-600 underline" onClick={() => void remove()}>
-          delete solve
-        </button>
+        <SolveActions solve={solve} onDeleted={onClose} />
       </div>
     </dialog>
   )
