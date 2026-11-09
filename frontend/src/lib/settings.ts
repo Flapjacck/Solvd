@@ -14,6 +14,7 @@ export interface Settings {
   shortcuts: boolean
   timerFont: TimerFontId
   theme: Theme
+  scramblePreview: ScramblePreview
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -24,7 +25,11 @@ export const DEFAULT_SETTINGS: Settings = {
   shortcuts: true,
   timerFont: DEFAULT_TIMER_FONT,
   theme: 'system',
+  scramblePreview: '2D',
 }
+
+/** How the scrambled puzzle is drawn under the scramble */
+export type ScramblePreview = 'off' | '2D' | '3D'
 
 export const HOLD_OPTIONS = [0, 300, 550, 1000] as const
 
