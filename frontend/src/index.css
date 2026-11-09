@@ -30,4 +30,22 @@
   .dark ::after {
     border-color: var(--color-neutral-700);
   }
+
+  /* Form controls get explicit colours: some browsers (Firefox, Chrome on Linux)
+     draw the dropdown list with the OS theme and ignore color-scheme, which made
+     the options white on white in dark mode */
+  select,
+  option,
+  optgroup,
+  input,
+  textarea {
+    @apply bg-white text-gray-900;
+  }
+  .dark select,
+  .dark option,
+  .dark optgroup,
+  .dark input,
+  .dark textarea {
+    @apply bg-neutral-900 text-gray-100;
+  }
 }
