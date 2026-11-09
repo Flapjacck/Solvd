@@ -1,28 +1,34 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { localStore, type Solve } from './lib/db'
-import { averageOf, effectiveMs, formatMs, formatSolve, formatStat } from './lib/time'
+import { formatMs, formatSolve } from './lib/time'
 import { SolveList } from './components/SolveList'
 import { SolveDetail } from './components/SolveDetail'
 import { SolveActions } from './components/SolveActions'
+import { SessionBar } from './components/SessionBar'
+import { StatsBar } from './components/StatsBar'
+import { useSessions } from './hooks/useSessions'
 import { useScramble } from './hooks/useScramble'
 import { useTimer } from './hooks/useTimer'
 
 const EVENT = '333'
-const SESSION = 'default'
 
 export default function App() {
+  const sessions = useSessions()
+  const sessionId = sessions.active?.id
+
   // Re-renders automatically whenever the solves table changes
-  const liveSolves = useLiveQuery(() => localStore.list(SESSION), [])
+  const liveSolves = useLiveQuery(async () => (sessionId ? localStore.list(sessionId) : []), [sessionId])
   const solves: Solve[] = useMemo(() => liveSolves ?? [], [liveSolves])
   const { scramble, loading, next } = useScramble(EVENT)
 
   const onStop = useCallback(
     async (ms: number) => {
-      await localStore.add({ timeMs: ms, penalty: 'none', scramble, event: EVENT, session: SESSION })
+      if (!sessionId) return
+      await localStore.add({ timeMs: ms, penalty: 'none', scramble, event: EVENT, session: sessionId })
       next()
     },
-    [scramble, next],
+    [scramble, next, sessionId],
   )
 
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -30,12 +36,6 @@ export default function App() {
   const selected = selectedIndex >= 0 ? solves[selectedIndex] : undefined
 
   const { state, elapsed, press, release } = useTimer(onStop, { disabled: !!selected })
-
-  const times = useMemo(() => solves.map((s) => effectiveMs(s.timeMs, s.penalty)), [solves])
-  const best = useMemo(() => {
-    const valid = times.filter((t): t is number => t !== null)
-    return valid.length ? Math.min(...valid) : undefined
-  }, [times])
 
   const last = solves[0]
 
@@ -50,6 +50,17 @@ export default function App() {
           new scramble
         </button>
       </header>
+
+      {sessions.active && (
+        <SessionBar
+          sessions={sessions.sessions}
+          active={sessions.active}
+          onSelect={sessions.select}
+          onCreate={() => void sessions.create()}
+          onRename={(id, name) => void sessions.rename(id, name)}
+          onDelete={(id) => void sessions.remove(id)}
+        />
+      )}
 
       <p className="text-center text-lg">{loading ? 'generating scramble...' : scramble}</p>
 
@@ -79,24 +90,7 @@ export default function App() {
         </div>
       )}
 
-      <section className="grid grid-cols-4 gap-2 text-center">
-        <div>
-          <div className="text-xs text-gray-500">solves</div>
-          <div>{solves.length}</div>
-        </div>
-        <div>
-          <div className="text-xs text-gray-500">best</div>
-          <div>{formatStat(best)}</div>
-        </div>
-        <div>
-          <div className="text-xs text-gray-500">ao5</div>
-          <div>{formatStat(averageOf(times, 5))}</div>
-        </div>
-        <div>
-          <div className="text-xs text-gray-500">ao12</div>
-          <div>{formatStat(averageOf(times, 12))}</div>
-        </div>
-      </section>
+      <StatsBar solves={solves} />
 
       <section>
         <h2 className="mb-2 font-bold">Solves</h2>
