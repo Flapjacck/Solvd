@@ -1,10 +1,11 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { localStore, type Solve } from './lib/db'
-import { formatSolve, type Penalty } from './lib/time'
+import type { Penalty } from './lib/time'
 import { SolveList } from './components/SolveList'
 import { SolveDetail } from './components/SolveDetail'
-import { SolveActions } from './components/SolveActions'
+import { LastSolve } from './components/LastSolve'
+import { Sidebar, SidebarSection } from './components/Sidebar'
 import { SessionBar } from './components/SessionBar'
 import { StatsBar } from './components/StatsBar'
 import { useSessions } from './hooks/useSessions'
@@ -69,46 +70,77 @@ export default function App() {
     openSettings: () => setSettingsOpen(true),
   })
 
+  // While inspecting or solving, only the timer is shown
+  const focus = timer.state === 'running' || timer.inspecting
+
   return (
-    <div className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 p-6">
-      <header className="flex items-baseline justify-between">
-        <h1 className="text-xl font-bold">Solvd</h1>
-        <nav className="flex gap-4">
-          <button className="underline" onClick={next}>
-            new scramble
-          </button>
-          <button className="underline" onClick={() => setSettingsOpen(true)}>
-            settings
-          </button>
-        </nav>
-      </header>
+    <div className="flex h-dvh overflow-hidden">
+      <Sidebar hidden={focus}>
+        <header className="flex items-baseline justify-between">
+          <h1 className="text-xl font-bold">Solvd</h1>
+          <nav className="flex gap-4 text-sm">
+            <button className="underline" onClick={next}>
+              new scramble
+            </button>
+            <button className="underline" onClick={() => setSettingsOpen(true)}>
+              settings
+            </button>
+          </nav>
+        </header>
 
-      {sessions.active && (
-        <SessionBar
-          sessions={sessions.sessions}
-          active={sessions.active}
-          onSelect={sessions.select}
-          onCreate={() => void sessions.create()}
-          onRename={(id, name) => void sessions.rename(id, name)}
-          onDelete={(id) => void sessions.remove(id)}
-          onEventChange={(id, ev) => void sessions.setEvent(id, ev)}
-        />
-      )}
+        {sessions.active && (
+          <SidebarSection title="Session">
+            <SessionBar
+              sessions={sessions.sessions}
+              active={sessions.active}
+              onSelect={sessions.select}
+              onCreate={() => void sessions.create()}
+              onRename={(id, name) => void sessions.rename(id, name)}
+              onDelete={(id) => void sessions.remove(id)}
+              onEventChange={(id, ev) => void sessions.setEvent(id, ev)}
+            />
+          </SidebarSection>
+        )}
 
-      <Scramble scramble={scramble} loading={loading} />
+        <SidebarSection title="Stats">
+          <StatsBar solves={solves} />
+        </SidebarSection>
 
-      {settings.scramblePreview !== 'off' && (
-        <ScramblePreview
-          puzzle={event.puzzle}
-          scramble={scramble}
-          visualization={settings.scramblePreview}
-          hidden={!atRest}
-        />
-      )}
+        {last && (
+          <SidebarSection title="Last solve">
+            <LastSolve
+              solve={last}
+              precision={settings.precision}
+              confirmingDelete={confirmingDelete}
+              onConfirmingDeleteChange={setConfirmingDelete}
+            />
+          </SidebarSection>
+        )}
 
-      {/* Touch area for phones: touch and hold, release to start, tap to stop */}
-      <div
-        className="flex flex-1 select-none items-center justify-center py-16"
+        {/* the only part of the page that scrolls */}
+        <SidebarSection title="Solves" className="min-h-0 flex-1">
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <SolveList solves={solves} onSelect={setSelectedId} />
+          </div>
+        </SidebarSection>
+
+        {settings.scramblePreview !== 'off' && (
+          <SidebarSection title="Preview">
+            <ScramblePreview puzzle={event.puzzle} scramble={scramble} visualization={settings.scramblePreview} />
+          </SidebarSection>
+        )}
+
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          {settings.inspection && !event.blind
+            ? 'Tap space to inspect, then hold until green and release to start. Any key stops.'
+            : 'Hold space until green, release to start. Any key stops.'}
+        </p>
+      </Sidebar>
+
+      {/* Scramble pinned to the top, timer centred in what's left (or the whole screen in focus).
+          Also the touch area for phones: touch and hold, release to start, tap to stop. */}
+      <main
+        className="relative flex min-w-0 flex-1 select-none items-center justify-center"
         onTouchStart={(e) => {
           e.preventDefault()
           timer.press()
@@ -118,6 +150,11 @@ export default function App() {
           timer.release()
         }}
       >
+        {!focus && (
+          <div className="absolute inset-x-0 top-0 p-8">
+            <Scramble scramble={scramble} loading={loading} />
+          </div>
+        )}
         <TimerDisplay
           state={timer.state}
           elapsed={timer.elapsed}
@@ -127,33 +164,7 @@ export default function App() {
           precision={settings.precision}
           fontId={settings.timerFont}
         />
-      </div>
-
-      <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-        {settings.inspection && !event.blind
-          ? 'tap space to inspect, then hold until green and release to start, any key to stop'
-          : 'hold space until green, release to start, any key to stop'}
-      </p>
-
-      {last && (
-        <div className="flex items-center justify-center gap-3 text-sm">
-          <span className="text-gray-500 dark:text-gray-400">last: {formatSolve(last.timeMs, last.penalty, settings.precision)}</span>
-          <SolveActions
-            key={last.id}
-            solve={last}
-            confirmingDelete={confirmingDelete}
-            onConfirmingDeleteChange={setConfirmingDelete}
-            onDeleted={() => setConfirmingDelete(false)}
-          />
-        </div>
-      )}
-
-      <StatsBar solves={solves} />
-
-      <section>
-        <h2 className="mb-2 font-bold">Solves</h2>
-        <SolveList solves={solves} onSelect={setSelectedId} />
-      </section>
+      </main>
 
       {selected && (
         <SolveDetail
