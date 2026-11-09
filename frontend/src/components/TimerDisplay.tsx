@@ -28,7 +28,7 @@ export function TimerDisplay({ state, elapsed, inspecting, inspectElapsed, hideW
   const warn = inspecting && !color && inspectElapsed >= 8000 ? 'text-orange-500' : ''
 
   return (
-    <span className={`text-7xl tabular-nums ${color || warn}`} aria-live="off">
+    <span className={`font-timer text-7xl font-bold tabular-nums ${color || warn}`} aria-live="off">
       {text}
     </span>
   )
