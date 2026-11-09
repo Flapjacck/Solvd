@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { localStore, type Solve } from './lib/db'
-import { formatMs, formatSolve } from './lib/time'
+import { formatSolve, type Penalty } from './lib/time'
 import { SolveList } from './components/SolveList'
 import { SolveDetail } from './components/SolveDetail'
 import { SolveActions } from './components/SolveActions'
@@ -10,10 +10,15 @@ import { StatsBar } from './components/StatsBar'
 import { useSessions } from './hooks/useSessions'
 import { useScramble } from './hooks/useScramble'
 import { useTimer } from './hooks/useTimer'
+import { useSettings } from './hooks/useSettings'
+import { useShortcuts } from './hooks/useShortcuts'
+import { SettingsDialog } from './components/SettingsDialog'
+import { TimerDisplay } from './components/TimerDisplay'
 
 const EVENT = '333'
 
 export default function App() {
+  const settings = useSettings()
   const sessions = useSessions()
   const sessionId = sessions.active?.id
 
@@ -23,9 +28,9 @@ export default function App() {
   const { scramble, loading, next } = useScramble(EVENT)
 
   const onStop = useCallback(
-    async (ms: number) => {
+    async (ms: number, penalty: Penalty) => {
       if (!sessionId) return
-      await localStore.add({ timeMs: ms, penalty: 'none', scramble, event: EVENT, session: sessionId })
+      await localStore.add({ timeMs: ms, penalty, scramble, event: EVENT, session: sessionId })
       next()
     },
     [scramble, next, sessionId],
@@ -35,20 +40,39 @@ export default function App() {
   const selectedIndex = selectedId ? solves.findIndex((s) => s.id === selectedId) : -1
   const selected = selectedIndex >= 0 ? solves[selectedIndex] : undefined
 
-  const { state, elapsed, press, release } = useTimer(onStop, { disabled: !!selected })
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const dialogOpen = !!selected || settingsOpen
+
+  const timer = useTimer(onStop, {
+    disabled: dialogOpen,
+    inspection: settings.inspection,
+    holdMs: settings.holdMs,
+  })
 
   const last = solves[0]
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
-  const timerColor =
-    state === 'holding' ? 'text-red-600' : state === 'ready' ? 'text-green-600' : ''
+  const atRest = timer.state === 'idle' || timer.state === 'stopped'
+  useShortcuts(settings.shortcuts && atRest && !dialogOpen, {
+    newScramble: next,
+    togglePlus2: () => last && void localStore.update(last.id, { penalty: last.penalty === '+2' ? 'none' : '+2' }),
+    toggleDnf: () => last && void localStore.update(last.id, { penalty: last.penalty === 'DNF' ? 'none' : 'DNF' }),
+    deleteLast: () => last && setConfirmingDelete(true),
+    openSettings: () => setSettingsOpen(true),
+  })
 
   return (
     <div className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 p-6 font-mono">
       <header className="flex items-baseline justify-between">
         <h1 className="text-xl font-bold">Solvd</h1>
-        <button className="underline" onClick={next}>
-          new scramble
-        </button>
+        <nav className="flex gap-4">
+          <button className="underline" onClick={next}>
+            new scramble
+          </button>
+          <button className="underline" onClick={() => setSettingsOpen(true)}>
+            settings
+          </button>
+        </nav>
       </header>
 
       {sessions.active && (
@@ -69,24 +93,39 @@ export default function App() {
         className="flex flex-1 select-none items-center justify-center py-16"
         onTouchStart={(e) => {
           e.preventDefault()
-          press()
+          timer.press()
         }}
         onTouchEnd={(e) => {
           e.preventDefault()
-          release()
+          timer.release()
         }}
       >
-        <span className={`text-7xl tabular-nums ${timerColor}`}>{formatMs(elapsed)}</span>
+        <TimerDisplay
+          state={timer.state}
+          elapsed={timer.elapsed}
+          inspecting={timer.inspecting}
+          inspectElapsed={timer.inspectElapsed}
+          hideWhileSolving={settings.hideTimerWhileSolving}
+          precision={settings.precision}
+        />
       </div>
 
       <p className="text-center text-sm text-gray-500">
-        hold space until green, release to start, any key to stop
+        {settings.inspection
+          ? 'tap space to inspect, then hold until green and release to start, any key to stop'
+          : 'hold space until green, release to start, any key to stop'}
       </p>
 
       {last && (
         <div className="flex items-center justify-center gap-3 text-sm">
-          <span className="text-gray-500">last: {formatSolve(last.timeMs, last.penalty)}</span>
-          <SolveActions key={last.id} solve={last} />
+          <span className="text-gray-500">last: {formatSolve(last.timeMs, last.penalty, settings.precision)}</span>
+          <SolveActions
+            key={last.id}
+            solve={last}
+            confirmingDelete={confirmingDelete}
+            onConfirmingDeleteChange={setConfirmingDelete}
+            onDeleted={() => setConfirmingDelete(false)}
+          />
         </div>
       )}
 
@@ -105,6 +144,8 @@ export default function App() {
           onClose={() => setSelectedId(null)}
         />
       )}
+
+      {settingsOpen && <SettingsDialog onClose={() => setSettingsOpen(false)} />}
     </div>
   )
 }
