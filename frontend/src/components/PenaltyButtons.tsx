@@ -1,4 +1,5 @@
 import type { Penalty } from '../lib/time'
+import { SegmentButton } from './SegmentButton'
 
 const OPTIONS: { value: Penalty; label: string }[] = [
   { value: 'none', label: 'OK' },
@@ -15,20 +16,11 @@ interface Props {
 export function PenaltyButtons({ value, onChange }: Props) {
   return (
     <div className="flex gap-1" role="group" aria-label="penalty">
-      {OPTIONS.map((o) => {
-        const active = value === o.value
-        return (
-          <button
-            key={o.value}
-            type="button"
-            aria-pressed={active}
-            className={`border px-2 ${active ? 'bg-black text-white' : ''}`}
-            onClick={() => onChange(o.value)}
-          >
-            {o.label}
-          </button>
-        )
-      })}
+      {OPTIONS.map((o) => (
+        <SegmentButton key={o.value} active={value === o.value} onClick={() => onChange(o.value)}>
+          {o.label}
+        </SegmentButton>
+      ))}
     </div>
   )
 }

@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { localStore, type Solve } from '../lib/db'
 import { formatDateLong, formatSolve } from '../lib/time'
+import { Modal } from './Modal'
 import { SolveActions } from './SolveActions'
+import { useSettings } from '../hooks/useSettings'
 
 interface Props {
   solve: Solve
@@ -11,12 +13,8 @@ interface Props {
 
 /** Modal with a solve's time, date, scramble, penalty and an editable note. */
 export function SolveDetail({ solve, number, onClose }: Props) {
-  const ref = useRef<HTMLDialogElement>(null)
   const [notes, setNotes] = useState(solve.notes)
-
-  useEffect(() => {
-    ref.current?.showModal()
-  }, [])
+  const { precision } = useSettings()
 
   const saveNotes = async () => {
     const trimmed = notes.trim()
@@ -29,24 +27,8 @@ export function SolveDetail({ solve, number, onClose }: Props) {
   }
 
   return (
-    <dialog
-      ref={ref}
-      className="m-auto w-full max-w-lg p-4 font-mono backdrop:bg-black/40"
-      onCancel={(e) => {
-        // Esc: save the note before closing
-        e.preventDefault()
-        void close()
-      }}
-    >
-      <div className="flex flex-col gap-3">
-        <header className="flex items-baseline justify-between">
-          <h2 className="font-bold">Solve {number}</h2>
-          <button className="underline" onClick={() => void close()}>
-            close
-          </button>
-        </header>
-
-        <p className="text-4xl tabular-nums">{formatSolve(solve.timeMs, solve.penalty)}</p>
+    <Modal title={`Solve ${number}`} onClose={() => void close()}>
+        <p className="text-4xl tabular-nums">{formatSolve(solve.timeMs, solve.penalty, precision)}</p>
 
         <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
           <dt className="text-gray-500">date</dt>
@@ -71,7 +53,6 @@ export function SolveDetail({ solve, number, onClose }: Props) {
         </label>
 
         <SolveActions solve={solve} onDeleted={onClose} />
-      </div>
-    </dialog>
+    </Modal>
   )
 }
