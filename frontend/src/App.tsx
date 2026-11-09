@@ -16,6 +16,7 @@ import { useTheme } from './hooks/useTheme'
 import { SettingsDialog } from './components/SettingsDialog'
 import { TimerDisplay } from './components/TimerDisplay'
 import { Scramble } from './components/Scramble'
+import { ScramblePreview } from './components/ScramblePreview'
 import { DEFAULT_EVENT, getEvent } from './lib/events'
 
 export default function App() {
@@ -95,6 +96,15 @@ export default function App() {
       )}
 
       <Scramble scramble={scramble} loading={loading} />
+
+      {settings.scramblePreview !== 'off' && (
+        <ScramblePreview
+          puzzle={event.puzzle}
+          scramble={scramble}
+          visualization={settings.scramblePreview}
+          hidden={!atRest}
+        />
+      )}
 
       {/* Touch area for phones: touch and hold, release to start, tap to stop */}
       <div

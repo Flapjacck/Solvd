@@ -19,6 +19,12 @@ const THEME_OPTIONS = [
   { value: 'dark', label: 'dark' },
 ] as const
 
+const PREVIEW_OPTIONS = [
+  { value: 'off', label: 'off' },
+  { value: '2D', label: '2D' },
+  { value: '3D', label: '3D' },
+] as const
+
 const FONT_OPTIONS = TIMER_FONTS.map((f) => ({ value: f.id, label: f.label }))
 
 const HOLD_LABELS = HOLD_OPTIONS.map((ms) => ({ value: ms, label: ms === 0 ? 'none' : `${ms / 1000}s` }))
@@ -32,6 +38,12 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
       <section className="flex flex-col gap-3 text-sm">
         <h3 className="font-bold">Appearance</h3>
         <OptionGroup label="Theme" value={s.theme} options={THEME_OPTIONS} onChange={(theme) => updateSettings({ theme })} />
+        <OptionGroup
+          label="Scramble preview"
+          value={s.scramblePreview}
+          options={PREVIEW_OPTIONS}
+          onChange={(scramblePreview) => updateSettings({ scramblePreview })}
+        />
       </section>
 
       <section className="flex flex-col gap-3 text-sm">
