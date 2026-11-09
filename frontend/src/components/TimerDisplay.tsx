@@ -54,7 +54,7 @@ export function TimerText({
   weight,
   digitWidth,
   className = '',
-  size = 'text-[clamp(5rem,18vw,11rem)]',
+  size = 'text-[clamp(3rem,15vw,11rem)]',
 }: TimerTextProps) {
   return (
     <span

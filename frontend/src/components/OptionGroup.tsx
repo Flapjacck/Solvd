@@ -12,7 +12,7 @@ export function OptionGroup<T extends string | number>({ label, value, options, 
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className="w-32">{label}</span>
-      <div className="flex gap-1" role="group" aria-label={label}>
+      <div className="flex flex-wrap gap-1" role="group" aria-label={label}>
         {options.map((o) => (
           <SegmentButton key={o.value} active={o.value === value} onClick={() => onChange(o.value)}>
             {o.label}

@@ -14,7 +14,11 @@ export function Scramble({ scramble, loading }: { scramble: string; loading: boo
     .filter((moves) => moves.length)
   const count = lines.reduce((n, moves) => n + moves.length, 0)
   // big cubes and Megaminx have 40-100 moves, so shrink the text to keep it readable
-  const size = count > 60 ? 'text-xl gap-x-3' : count > 30 ? 'text-2xl gap-x-4' : 'text-4xl gap-x-6'
+  const size = count > 60
+      ? 'text-base gap-x-2 md:text-xl md:gap-x-3'
+      : count > 30
+        ? 'text-lg gap-x-3 md:text-2xl md:gap-x-4'
+        : 'text-2xl gap-x-4 md:text-4xl md:gap-x-6'
 
   return (
     <div className="flex flex-col items-center gap-1" aria-label={scramble}>
