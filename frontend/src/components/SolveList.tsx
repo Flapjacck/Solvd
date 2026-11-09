@@ -21,17 +21,14 @@ export function SolveList({ solves, onSelect }: Props) {
             onClick={() => onSelect(s.id)}
           >
             <span className="w-8 text-gray-500 dark:text-gray-400">{solves.length - i}.</span>
-            <span className="w-20">{formatSolve(s.timeMs, s.penalty, precision)}</span>
+            <span className="flex-1 tabular-nums">{formatSolve(s.timeMs, s.penalty, precision)}</span>
             <time
-              className="w-32 text-xs text-gray-500 dark:text-gray-400"
+              className="text-xs text-gray-500 dark:text-gray-400"
               dateTime={new Date(s.createdAt).toISOString()}
               title={formatDateLong(s.createdAt)}
             >
               {formatDateShort(s.createdAt)}
             </time>
-            <span className="flex-1 truncate text-xs text-gray-500 dark:text-gray-400" title={s.scramble}>
-              {s.scramble}
-            </span>
             {s.notes && (
               <span className="text-xs" title={s.notes} aria-label="has note">
                 [note]

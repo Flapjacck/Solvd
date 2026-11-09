@@ -38,8 +38,6 @@ export function SessionBar({
 
   return (
     <div className="flex flex-wrap items-center gap-3 text-sm">
-      <span className="text-gray-500 dark:text-gray-400">session</span>
-
       {renaming ? (
         <form
           className="flex gap-2"
@@ -67,7 +65,7 @@ export function SessionBar({
       ) : (
         <>
           <select
-            className="border px-1"
+            className="min-w-0 flex-1 border px-1"
             value={active.id}
             aria-label="active session"
             onChange={(e) => {

@@ -16,6 +16,11 @@
     /* native controls (select, textarea, dialog, scrollbars) follow the theme */
     color-scheme: dark;
   }
+  /* the app is one fixed screen; only the sidebar's solve list scrolls */
+  html,
+  body {
+    @apply h-full overflow-hidden;
+  }
   body {
     @apply bg-white text-gray-900 dark:bg-neutral-950 dark:text-gray-100;
   }
