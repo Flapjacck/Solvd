@@ -1,5 +1,6 @@
 import type { Solve } from '../lib/db'
 import { formatDateLong, formatDateShort, formatSolve } from '../lib/time'
+import { useSettings } from '../hooks/useSettings'
 
 interface Props {
   solves: Solve[]
@@ -8,6 +9,7 @@ interface Props {
 
 /** Newest-first list of solves. Click a row to open its details. */
 export function SolveList({ solves, onSelect }: Props) {
+  const { precision } = useSettings()
   if (!solves.length) return <p className="text-sm text-gray-500">no solves yet</p>
 
   return (
@@ -19,7 +21,7 @@ export function SolveList({ solves, onSelect }: Props) {
             onClick={() => onSelect(s.id)}
           >
             <span className="w-8 text-gray-500">{solves.length - i}.</span>
-            <span className="w-20">{formatSolve(s.timeMs, s.penalty)}</span>
+            <span className="w-20">{formatSolve(s.timeMs, s.penalty, precision)}</span>
             <time
               className="w-32 text-xs text-gray-500"
               dateTime={new Date(s.createdAt).toISOString()}
