@@ -1,18 +1,31 @@
 import { useState } from 'react'
 import type { Session } from '../lib/db'
 import { ConfirmButton } from './ConfirmButton'
+import { EventPicker } from './EventPicker'
 
 interface Props {
   sessions: Session[]
   active: Session
+  /** Solves in the active session (the event is locked once there are any) */
+  solveCount: number
   onSelect: (id: string) => void
   onCreate: () => void
   onRename: (id: string, name: string) => void
   onDelete: (id: string) => void
+  onEventChange: (id: string, event: string) => void
 }
 
-/** Pick, create, rename and delete sessions. */
-export function SessionBar({ sessions, active, onSelect, onCreate, onRename, onDelete }: Props) {
+/** Pick, create, rename and delete sessions, and set the session's event. */
+export function SessionBar({
+  sessions,
+  active,
+  solveCount,
+  onSelect,
+  onCreate,
+  onRename,
+  onDelete,
+  onEventChange,
+}: Props) {
   const [renaming, setRenaming] = useState(false)
   const [draft, setDraft] = useState('')
 
@@ -71,6 +84,7 @@ export function SessionBar({ sessions, active, onSelect, onCreate, onRename, onD
               </option>
             ))}
           </select>
+          <EventPicker value={active.event} locked={solveCount > 0} onChange={(ev) => onEventChange(active.id, ev)} />
           <button type="button" className="underline" onClick={onCreate}>
             new
           </button>
