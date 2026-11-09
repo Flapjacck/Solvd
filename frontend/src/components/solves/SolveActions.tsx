@@ -1,5 +1,5 @@
-import { localStore, type Solve } from '../lib/db'
-import { ConfirmButton } from './ConfirmButton'
+import { localStore, type Solve } from '../../lib/db'
+import { ConfirmButton } from '../ui/ConfirmButton'
 import { PenaltyButtons } from './PenaltyButtons'
 
 interface Props {

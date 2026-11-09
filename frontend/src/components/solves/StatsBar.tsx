@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
-import type { Solve } from '../lib/db'
-import { averageOf, effectiveMs, formatStat } from '../lib/time'
-import { useSettings } from '../hooks/useSettings'
+import type { Solve } from '../../lib/db'
+import { averageOf, effectiveMs, formatStat } from '../../lib/time'
+import { useSettings } from '../../hooks/useSettings'
 
 /** Count, best, ao5 and ao12 for a newest-first list of solves. */
 export function StatsBar({ solves }: { solves: Solve[] }) {
