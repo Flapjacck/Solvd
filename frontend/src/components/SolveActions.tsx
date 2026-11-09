@@ -16,7 +16,7 @@ export function SolveActions({ solve, onDeleted, confirmingDelete, onConfirmingD
     <div className="flex flex-wrap items-center gap-3">
       <PenaltyButtons value={solve.penalty} onChange={(penalty) => void localStore.update(solve.id, { penalty })} />
       <ConfirmButton
-        className="text-red-600 underline"
+        className="text-red-600 dark:text-red-400 underline"
         confirmLabel="yes, delete"
         asking={confirmingDelete}
         onAskingChange={onConfirmingDeleteChange}

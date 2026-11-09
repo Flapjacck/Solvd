@@ -39,7 +39,7 @@ export function ConfirmButton({
       {/* Focus lands on confirm so Enter confirms; Esc or cancel backs out */}
       <button
         type="button"
-        className="text-red-600 underline"
+        className="text-red-600 dark:text-red-400 underline"
         autoFocus
         onClick={() => {
           setAsking(false)

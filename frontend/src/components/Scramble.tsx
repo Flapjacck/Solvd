@@ -6,7 +6,7 @@
 const MOVE = /\([^)]*\)|\S+/g
 
 export function Scramble({ scramble, loading }: { scramble: string; loading: boolean }) {
-  if (loading) return <p className="text-center text-lg text-gray-500">generating scramble...</p>
+  if (loading) return <p className="text-center text-lg text-gray-500 dark:text-gray-400">generating scramble...</p>
 
   const lines = scramble
     .split('\n')

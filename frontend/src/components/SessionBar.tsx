@@ -38,7 +38,7 @@ export function SessionBar({
 
   return (
     <div className="flex flex-wrap items-center gap-3 text-sm">
-      <span className="text-gray-500">session</span>
+      <span className="text-gray-500 dark:text-gray-400">session</span>
 
       {renaming ? (
         <form
@@ -91,7 +91,7 @@ export function SessionBar({
           {sessions.length > 1 && (
             <ConfirmButton
               key={active.id}
-              className="text-red-600 underline"
+              className="text-red-600 dark:text-red-400 underline"
               confirmLabel="yes, delete session and its solves"
               onConfirm={() => onDelete(active.id)}
             >

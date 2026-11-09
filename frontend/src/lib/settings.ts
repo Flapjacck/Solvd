@@ -4,6 +4,7 @@
  */
 import type { Precision } from './time'
 import { DEFAULT_TIMER_FONT, type TimerFontId } from './fonts'
+import type { Theme } from './theme'
 
 export interface Settings {
   hideTimerWhileSolving: boolean
@@ -12,6 +13,7 @@ export interface Settings {
   precision: Precision // decimal places: 2 = 0.01s, 3 = 0.001s
   shortcuts: boolean
   timerFont: TimerFontId
+  theme: Theme
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -21,6 +23,7 @@ export const DEFAULT_SETTINGS: Settings = {
   precision: 2,
   shortcuts: true,
   timerFont: DEFAULT_TIMER_FONT,
+  theme: 'system',
 }
 
 export const HOLD_OPTIONS = [0, 300, 550, 1000] as const

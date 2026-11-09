@@ -1,6 +1,33 @@
 @import "tailwindcss";
 
+/* dark: applies under <html class="dark">, set from the theme setting (lib/theme.ts) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Fonts are loaded from Google Fonts (index.html + lib/fonts.ts) */
 @theme {
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    /* native controls (select, textarea, dialog, scrollbars) follow the theme */
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-white text-gray-900 dark:bg-neutral-950 dark:text-gray-100;
+  }
+  /* softer default border than currentColor */
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-gray-300);
+  }
+  .dark *,
+  .dark ::before,
+  .dark ::after {
+    border-color: var(--color-neutral-700);
+  }
 }

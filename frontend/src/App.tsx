@@ -12,6 +12,7 @@ import { useScramble } from './hooks/useScramble'
 import { useTimer } from './hooks/useTimer'
 import { useSettings } from './hooks/useSettings'
 import { useShortcuts } from './hooks/useShortcuts'
+import { useTheme } from './hooks/useTheme'
 import { SettingsDialog } from './components/SettingsDialog'
 import { TimerDisplay } from './components/TimerDisplay'
 import { Scramble } from './components/Scramble'
@@ -19,6 +20,7 @@ import { DEFAULT_EVENT, getEvent } from './lib/events'
 
 export default function App() {
   const settings = useSettings()
+  useTheme()
   const sessions = useSessions()
   const sessionId = sessions.active?.id
   const event = getEvent(sessions.active?.event ?? DEFAULT_EVENT)
@@ -117,7 +119,7 @@ export default function App() {
         />
       </div>
 
-      <p className="text-center text-sm text-gray-500">
+      <p className="text-center text-sm text-gray-500 dark:text-gray-400">
         {settings.inspection && !event.blind
           ? 'tap space to inspect, then hold until green and release to start, any key to stop'
           : 'hold space until green, release to start, any key to stop'}
@@ -125,7 +127,7 @@ export default function App() {
 
       {last && (
         <div className="flex items-center justify-center gap-3 text-sm">
-          <span className="text-gray-500">last: {formatSolve(last.timeMs, last.penalty, settings.precision)}</span>
+          <span className="text-gray-500 dark:text-gray-400">last: {formatSolve(last.timeMs, last.penalty, settings.precision)}</span>
           <SolveActions
             key={last.id}
             solve={last}

@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Solvd</title>
+    <!-- Apply the saved theme before first paint so dark mode doesn't flash white.
+         Same rule as lib/theme.ts. -->
+    <script>
+      try {
+        var t = (JSON.parse(localStorage.getItem('solvd.settings') || '{}').theme) || 'system'
+        if (t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches))
+          document.documentElement.classList.add('dark')
+      } catch (e) {}
+    </script>
     <!-- Google Fonts: Outfit (UI, variable 400-700) and Orbitron 700 (timer only).
          preconnect cuts the DNS/TLS round trips; display=swap shows fallback text right away. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
