@@ -78,18 +78,13 @@ export default function App() {
       <Sidebar hidden={focus}>
         <header className="flex items-baseline justify-between">
           <h1 className="text-xl font-bold">Solvd</h1>
-          <nav className="flex gap-4 text-sm">
-            <button className="underline" onClick={next}>
-              new scramble
-            </button>
-            <button className="underline" onClick={() => setSettingsOpen(true)}>
-              settings
-            </button>
-          </nav>
+          <button className="text-sm underline" onClick={() => setSettingsOpen(true)}>
+            settings
+          </button>
         </header>
 
         {sessions.active && (
-          <SidebarSection title="Session">
+          <SidebarSection>
             <SessionBar
               sessions={sessions.sessions}
               active={sessions.active}
@@ -151,8 +146,17 @@ export default function App() {
         }}
       >
         {!focus && (
-          <div className="shrink-0 p-8" data-scramble>
+          <div
+            className="flex shrink-0 flex-col items-center gap-3 p-8"
+            data-scramble
+            // taps here (e.g. new scramble) shouldn't start the timer
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
+          >
             <Scramble scramble={scramble} loading={loading} />
+            <button className="text-sm text-gray-500 underline dark:text-gray-400" onClick={next}>
+              new scramble
+            </button>
           </div>
         )}
         <div className="flex min-h-0 flex-1 items-center justify-center">

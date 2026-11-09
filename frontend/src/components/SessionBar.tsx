@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Session } from '../lib/db'
 import { ConfirmButton } from './ConfirmButton'
 import { EventPicker } from './EventPicker'
+import { SectionTitle } from './Sidebar'
 
 interface Props {
   sessions: Session[]
@@ -37,33 +38,35 @@ export function SessionBar({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3 text-sm">
-      {renaming ? (
-        <form
-          className="flex gap-2"
-          onSubmit={(e) => {
-            e.preventDefault()
-            commitRename()
-          }}
-        >
-          <input
-            className="border px-1"
-            value={draft}
-            autoFocus
-            maxLength={40}
-            aria-label="session name"
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => e.key === 'Escape' && setRenaming(false)}
-          />
-          <button type="submit" className="underline">
-            save
-          </button>
-          <button type="button" className="underline" onClick={() => setRenaming(false)}>
-            cancel
-          </button>
-        </form>
-      ) : (
-        <>
+    <div className="flex flex-col gap-2 text-sm">
+      {/* row 1: the "Session" title with the session picker (or rename field) beside it */}
+      <div className="flex items-center gap-3">
+        <SectionTitle>Session</SectionTitle>
+        {renaming ? (
+          <form
+            className="flex min-w-0 flex-1 gap-2"
+            onSubmit={(e) => {
+              e.preventDefault()
+              commitRename()
+            }}
+          >
+            <input
+              className="min-w-0 flex-1 border px-1"
+              value={draft}
+              autoFocus
+              maxLength={40}
+              aria-label="session name"
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => e.key === 'Escape' && setRenaming(false)}
+            />
+            <button type="submit" className="underline">
+              save
+            </button>
+            <button type="button" className="underline" onClick={() => setRenaming(false)}>
+              cancel
+            </button>
+          </form>
+        ) : (
           <select
             className="min-w-0 flex-1 border px-1"
             value={active.id}
@@ -79,25 +82,29 @@ export function SessionBar({
               </option>
             ))}
           </select>
-          <EventPicker value={active.event} onChange={(ev) => onEventChange(active.id, ev)} />
-          <button type="button" className="underline" onClick={onCreate}>
-            new
-          </button>
-          <button type="button" className="underline" onClick={startRename}>
-            rename
-          </button>
-          {sessions.length > 1 && (
-            <ConfirmButton
-              key={active.id}
-              className="text-red-600 dark:text-red-400 underline"
-              confirmLabel="yes, delete session and its solves"
-              onConfirm={() => onDelete(active.id)}
-            >
-              delete
-            </ConfirmButton>
-          )}
-        </>
-      )}
+        )}
+      </div>
+
+      {/* row 2: event and session actions */}
+      <div className="flex flex-wrap items-center gap-3">
+        <EventPicker value={active.event} onChange={(ev) => onEventChange(active.id, ev)} />
+        <button type="button" className="underline" onClick={onCreate}>
+          new
+        </button>
+        <button type="button" className="underline" onClick={startRename} disabled={renaming}>
+          rename
+        </button>
+        {sessions.length > 1 && (
+          <ConfirmButton
+            key={active.id}
+            className="text-red-600 underline dark:text-red-400"
+            confirmLabel="yes, delete session and its solves"
+            onConfirm={() => onDelete(active.id)}
+          >
+            delete
+          </ConfirmButton>
+        )}
+      </div>
     </div>
   )
 }
