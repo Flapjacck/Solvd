@@ -94,18 +94,7 @@ export function StatsView({ sessions, onClose }: Props) {
               </SegmentButton>
             ))}
           </div>
-          {prefs.range === 'last' && (
-            <input
-              type="number"
-              inputMode="numeric"
-              min={1}
-              step={1}
-              className="w-20 border px-1"
-              aria-label="last N solves"
-              value={prefs.lastN}
-              onChange={(e) => set('lastN', Math.max(1, Math.floor(Number(e.target.value) || 1)))}
-            />
-          )}
+          {prefs.range === 'last' && <LastNInput value={prefs.lastN} onChange={(n) => set('lastN', n)} />}
           {prefs.range === 'dates' && (
             <span className="flex flex-wrap items-center gap-1">
               <input type="date" className="border px-1" aria-label="from date" value={prefs.from} onChange={(e) => set('from', e.target.value)} />
@@ -167,6 +156,28 @@ export function StatsView({ sessions, onClose }: Props) {
         </>
       )}
     </Modal>
+  )
+}
+
+/** Typed as text so it can be cleared while editing; only whole numbers of 1 or more are saved */
+function LastNInput({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+  const [draft, setDraft] = useState(String(value))
+  return (
+    <input
+      type="number"
+      inputMode="numeric"
+      min={1}
+      step={1}
+      className="w-20 border px-1"
+      aria-label="last N solves"
+      value={draft}
+      onChange={(e) => {
+        setDraft(e.target.value)
+        const n = Math.floor(Number(e.target.value))
+        if (n >= 1) onChange(n)
+      }}
+      onBlur={() => setDraft(String(value))}
+    />
   )
 }
 
