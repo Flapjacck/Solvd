@@ -23,8 +23,13 @@ export function Sidebar({ hidden, children }: Props) {
 export function SidebarSection({ title, children, className = '' }: { title?: string; children: ReactNode; className?: string }) {
   return (
     <section className={`flex flex-col gap-2 ${className}`}>
-      {title && <h2 className="text-xs font-bold tracking-wide text-gray-500 uppercase dark:text-gray-400">{title}</h2>}
+      {title && <SectionTitle>{title}</SectionTitle>}
       {children}
     </section>
   )
+}
+
+/** Small uppercase heading used by sidebar sections */
+export function SectionTitle({ children }: { children: ReactNode }) {
+  return <h2 className="text-xs font-bold tracking-wide text-gray-500 uppercase dark:text-gray-400">{children}</h2>
 }
