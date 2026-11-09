@@ -14,6 +14,7 @@ import { useSettings } from './hooks/useSettings'
 import { useShortcuts } from './hooks/useShortcuts'
 import { SettingsDialog } from './components/SettingsDialog'
 import { TimerDisplay } from './components/TimerDisplay'
+import { Scramble } from './components/Scramble'
 
 const EVENT = '333'
 
@@ -86,7 +87,7 @@ export default function App() {
         />
       )}
 
-      <p className="text-center text-lg">{loading ? 'generating scramble...' : scramble}</p>
+      <Scramble scramble={scramble} loading={loading} />
 
       {/* Touch area for phones: touch and hold, release to start, tap to stop */}
       <div
@@ -107,6 +108,7 @@ export default function App() {
           inspectElapsed={timer.inspectElapsed}
           hideWhileSolving={settings.hideTimerWhileSolving}
           precision={settings.precision}
+          fontId={settings.timerFont}
         />
       </div>
 

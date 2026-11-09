@@ -1,6 +1,8 @@
 import { useSettings } from '../hooks/useSettings'
 import { HOLD_OPTIONS, resetSettings, updateSettings } from '../lib/settings'
 import { SHORTCUTS } from '../lib/shortcuts'
+import { getTimerFont, loadTimerFont, TIMER_FONTS } from '../lib/fonts'
+import { TimerText } from './TimerDisplay'
 import { ConfirmButton } from './ConfirmButton'
 import { Modal } from './Modal'
 import { OptionGroup } from './OptionGroup'
@@ -10,6 +12,8 @@ const PRECISION_OPTIONS = [
   { value: 2, label: '0.01' },
   { value: 3, label: '0.001' },
 ] as const
+
+const FONT_OPTIONS = TIMER_FONTS.map((f) => ({ value: f.id, label: f.label }))
 
 const HOLD_LABELS = HOLD_OPTIONS.map((ms) => ({ value: ms, label: ms === 0 ? 'none' : `${ms / 1000}s` }))
 
@@ -39,6 +43,18 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
           options={HOLD_LABELS}
           onChange={(holdMs) => updateSettings({ holdMs })}
         />
+        <OptionGroup
+          label="Timer font"
+          value={s.timerFont}
+          options={FONT_OPTIONS}
+          onChange={(timerFont) => {
+            loadTimerFont(getTimerFont(timerFont))
+            updateSettings({ timerFont })
+          }}
+        />
+        <div className="flex justify-center py-2" aria-hidden>
+          <FontPreview id={s.timerFont} />
+        </div>
         <OptionGroup
           label="Precision"
           value={s.precision}
@@ -73,4 +89,9 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
       </ConfirmButton>
     </Modal>
   )
+}
+
+function FontPreview({ id }: { id: string }) {
+  const f = getTimerFont(id)
+  return <TimerText text="12.34" family={f.family} weight={f.weight} digitWidth={f.digitWidth} size="text-5xl" />
 }
