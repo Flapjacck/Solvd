@@ -86,7 +86,11 @@ export default function App() {
     <div className="flex h-dvh overflow-hidden">
       <Sidebar focus={focus} open={menuOpen} onClose={() => setMenuOpen(false)}>
         <header className="flex items-baseline justify-between">
-          <h1 className="text-xl font-bold">Solvd</h1>
+          <h1 className="flex items-center text-xl font-bold" aria-label="Solvd">
+            Solv
+            {/* the cube icon is the "d" */}
+            <img src="/soldv_icon.png" alt="" className="ml-0.5 h-[1.15em] w-auto" />
+          </h1>
           <div className="flex gap-3 text-sm">
             <button
               className="underline"
