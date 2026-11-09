@@ -5,11 +5,26 @@ interface Props {
   onConfirm: () => void
   confirmLabel?: string
   className?: string
+  /** Optional controlled mode, e.g. so a keyboard shortcut can open the confirm step */
+  asking?: boolean
+  onAskingChange?: (asking: boolean) => void
 }
 
 /** Button that asks "are you sure?" inline before running a destructive action. */
-export function ConfirmButton({ children, onConfirm, confirmLabel = 'confirm', className = '' }: Props) {
-  const [asking, setAsking] = useState(false)
+export function ConfirmButton({
+  children,
+  onConfirm,
+  confirmLabel = 'confirm',
+  className = '',
+  asking: askingProp,
+  onAskingChange,
+}: Props) {
+  const [askingState, setAskingState] = useState(false)
+  const asking = askingProp ?? askingState
+  const setAsking = (v: boolean) => {
+    setAskingState(v)
+    onAskingChange?.(v)
+  }
 
   if (!asking) {
     return (
@@ -20,10 +35,12 @@ export function ConfirmButton({ children, onConfirm, confirmLabel = 'confirm', c
   }
 
   return (
-    <span className="flex gap-2">
+    <span className="flex gap-2" onKeyDown={(e) => e.key === 'Escape' && setAsking(false)}>
+      {/* Focus lands on confirm so Enter confirms; Esc or cancel backs out */}
       <button
         type="button"
         className="text-red-600 underline"
+        autoFocus
         onClick={() => {
           setAsking(false)
           onConfirm()
@@ -31,7 +48,7 @@ export function ConfirmButton({ children, onConfirm, confirmLabel = 'confirm', c
       >
         {confirmLabel}
       </button>
-      <button type="button" className="underline" autoFocus onClick={() => setAsking(false)}>
+      <button type="button" className="underline" onClick={() => setAsking(false)}>
         cancel
       </button>
     </span>
