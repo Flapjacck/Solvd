@@ -1,29 +1,32 @@
 import { useCallback, useEffect, useState } from 'react'
 import { randomScrambleForEvent } from 'cubing/scramble'
 
-/** Random-state WCA scramble for an event (default 3x3). */
-export function useScramble(event = '333') {
-  const [scramble, setScramble] = useState('')
-  const [loading, setLoading] = useState(true)
+interface Result {
+  event: string
+  counter: number
+  scramble: string
+}
+
+/** Random-state WCA scramble for an event (cubing.js event id). */
+export function useScramble(event: string) {
+  const [result, setResult] = useState<Result | null>(null)
   // bump to request a new scramble
   const [counter, setCounter] = useState(0)
 
   useEffect(() => {
     let cancelled = false
     randomScrambleForEvent(event).then((alg) => {
-      if (cancelled) return
-      setScramble(alg.toString())
-      setLoading(false)
+      if (!cancelled) setResult({ event, counter, scramble: alg.toString() })
     })
     return () => {
       cancelled = true
     }
   }, [event, counter])
 
-  const next = useCallback(() => {
-    setLoading(true)
-    setCounter((c) => c + 1)
-  }, [])
+  const next = useCallback(() => setCounter((c) => c + 1), [])
 
-  return { scramble, loading, next }
+  // Loading until the scramble matches the current event and request,
+  // so switching events never shows (or saves) the old event's scramble
+  const loading = !result || result.event !== event || result.counter !== counter
+  return { scramble: loading ? '' : result.scramble, loading, next }
 }

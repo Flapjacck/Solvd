@@ -15,26 +15,26 @@ import { useShortcuts } from './hooks/useShortcuts'
 import { SettingsDialog } from './components/SettingsDialog'
 import { TimerDisplay } from './components/TimerDisplay'
 import { Scramble } from './components/Scramble'
-
-const EVENT = '333'
+import { DEFAULT_EVENT, getEvent } from './lib/events'
 
 export default function App() {
   const settings = useSettings()
   const sessions = useSessions()
   const sessionId = sessions.active?.id
+  const event = getEvent(sessions.active?.event ?? DEFAULT_EVENT)
 
   // Re-renders automatically whenever the solves table changes
   const liveSolves = useLiveQuery(async () => (sessionId ? localStore.list(sessionId) : []), [sessionId])
   const solves: Solve[] = useMemo(() => liveSolves ?? [], [liveSolves])
-  const { scramble, loading, next } = useScramble(EVENT)
+  const { scramble, loading, next } = useScramble(event.id)
 
   const onStop = useCallback(
     async (ms: number, penalty: Penalty) => {
       if (!sessionId) return
-      await localStore.add({ timeMs: ms, penalty, scramble, event: EVENT, session: sessionId })
+      await localStore.add({ timeMs: ms, penalty, scramble, event: event.id, session: sessionId })
       next()
     },
-    [scramble, next, sessionId],
+    [scramble, next, sessionId, event.id],
   )
 
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -46,7 +46,8 @@ export default function App() {
 
   const timer = useTimer(onStop, {
     disabled: dialogOpen,
-    inspection: settings.inspection,
+    // WCA blindfolded events have no inspection
+    inspection: settings.inspection && !event.blind,
     holdMs: settings.holdMs,
   })
 
@@ -80,10 +81,12 @@ export default function App() {
         <SessionBar
           sessions={sessions.sessions}
           active={sessions.active}
+          solveCount={solves.length}
           onSelect={sessions.select}
           onCreate={() => void sessions.create()}
           onRename={(id, name) => void sessions.rename(id, name)}
           onDelete={(id) => void sessions.remove(id)}
+          onEventChange={(id, ev) => void sessions.setEvent(id, ev)}
         />
       )}
 
@@ -113,7 +116,7 @@ export default function App() {
       </div>
 
       <p className="text-center text-sm text-gray-500">
-        {settings.inspection
+        {settings.inspection && !event.blind
           ? 'tap space to inspect, then hold until green and release to start, any key to stop'
           : 'hold space until green, release to start, any key to stop'}
       </p>
