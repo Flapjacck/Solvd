@@ -12,7 +12,7 @@ export function SegmentButton({ active, onClick, children }: Props) {
     <button
       type="button"
       aria-pressed={active}
-      className={`border px-2 ${active ? 'bg-black text-white' : ''}`}
+      className={`border px-2 ${active ? 'bg-black text-white dark:bg-white dark:text-black' : ''}`}
       onClick={onClick}
     >
       {children}

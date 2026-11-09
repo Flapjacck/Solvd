@@ -17,7 +17,7 @@ export function Modal({ title, onClose, children }: Props) {
   return (
     <dialog
       ref={ref}
-      className="m-auto w-full max-w-lg p-4 backdrop:bg-black/40"
+      className="m-auto w-full max-w-lg bg-white p-4 text-gray-900 backdrop:bg-black/40 dark:bg-neutral-900 dark:text-gray-100 dark:backdrop:bg-black/60"
       onCancel={(e) => {
         e.preventDefault() // let the parent decide (e.g. save first)
         onClose()

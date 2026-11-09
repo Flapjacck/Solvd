@@ -13,6 +13,12 @@ const PRECISION_OPTIONS = [
   { value: 3, label: '0.001' },
 ] as const
 
+const THEME_OPTIONS = [
+  { value: 'system', label: 'system' },
+  { value: 'light', label: 'light' },
+  { value: 'dark', label: 'dark' },
+] as const
+
 const FONT_OPTIONS = TIMER_FONTS.map((f) => ({ value: f.id, label: f.label }))
 
 const HOLD_LABELS = HOLD_OPTIONS.map((ms) => ({ value: ms, label: ms === 0 ? 'none' : `${ms / 1000}s` }))
@@ -23,6 +29,11 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
 
   return (
     <Modal title="Settings" onClose={onClose}>
+      <section className="flex flex-col gap-3 text-sm">
+        <h3 className="font-bold">Appearance</h3>
+        <OptionGroup label="Theme" value={s.theme} options={THEME_OPTIONS} onChange={(theme) => updateSettings({ theme })} />
+      </section>
+
       <section className="flex flex-col gap-3 text-sm">
         <h3 className="font-bold">Timer</h3>
         <Toggle
@@ -70,7 +81,7 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
           checked={s.shortcuts}
           onChange={(shortcuts) => updateSettings({ shortcuts })}
         />
-        <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-gray-500">
+        <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
           <dt>Space</dt>
           <dd>hold and release to start, any key stops</dd>
           <dt>Esc</dt>

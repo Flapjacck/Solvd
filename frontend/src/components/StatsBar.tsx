@@ -21,7 +21,7 @@ export function StatsBar({ solves }: { solves: Solve[] }) {
     <section className="grid grid-cols-4 gap-2 text-center">
       {stats.map((s) => (
         <div key={s.label}>
-          <div className="text-xs text-gray-500">{s.label}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">{s.label}</div>
           <div>{s.value}</div>
         </div>
       ))}

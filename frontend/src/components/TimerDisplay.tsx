@@ -18,7 +18,7 @@ export function TimerDisplay({ state, elapsed, inspecting, inspectElapsed, hideW
   const font = getTimerFont(fontId)
   useEffect(() => loadTimerFont(font), [font])
 
-  const color = state === 'holding' ? 'text-red-600' : state === 'ready' ? 'text-green-600' : ''
+  const color = state === 'holding' ? 'text-red-600 dark:text-red-400' : state === 'ready' ? 'text-green-600 dark:text-green-400' : ''
 
   let text: string
   if (inspecting) {
@@ -31,7 +31,7 @@ export function TimerDisplay({ state, elapsed, inspecting, inspectElapsed, hideW
   }
 
   // orange in the last 7 seconds of inspection (8s and 12s are the WCA call-outs)
-  const warn = inspecting && !color && inspectElapsed >= 8000 ? 'text-orange-500' : ''
+  const warn = inspecting && !color && inspectElapsed >= 8000 ? 'text-orange-500 dark:text-orange-400' : ''
 
   return (
     <TimerText text={text} family={font.family} weight={font.weight} digitWidth={font.digitWidth} className={color || warn} />
