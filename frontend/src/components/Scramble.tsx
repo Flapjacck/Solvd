@@ -2,12 +2,15 @@
  * Scramble shown move by move with clear spacing between moves.
  * Keeps line breaks (Megaminx scrambles come as one line per row).
  */
+// A move is a Square-1 pair like "(1, -2)" or any other run of non-spaces
+const MOVE = /\([^)]*\)|\S+/g
+
 export function Scramble({ scramble, loading }: { scramble: string; loading: boolean }) {
   if (loading) return <p className="text-center text-lg text-gray-500">generating scramble...</p>
 
   const lines = scramble
     .split('\n')
-    .map((line) => line.trim().split(/\s+/).filter(Boolean))
+    .map((line) => line.match(MOVE) ?? [])
     .filter((moves) => moves.length)
   const count = lines.reduce((n, moves) => n + moves.length, 0)
   // big cubes and Megaminx have 40-100 moves, so shrink the text to keep it readable
