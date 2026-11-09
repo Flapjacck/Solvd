@@ -1,5 +1,5 @@
-import type { Penalty } from '../lib/time'
-import { SegmentButton } from './SegmentButton'
+import type { Penalty } from '../../lib/time'
+import { SegmentButton } from '../ui/SegmentButton'
 
 const OPTIONS: { value: Penalty; label: string }[] = [
   { value: 'none', label: 'OK' },

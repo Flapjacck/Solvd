@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { localStore, type Solve } from '../lib/db'
-import { formatDateLong, formatSolve } from '../lib/time'
-import { Modal } from './Modal'
+import { localStore, type Solve } from '../../lib/db'
+import { formatDateLong, formatSolve } from '../../lib/time'
+import { Modal } from '../ui/Modal'
 import { SolveActions } from './SolveActions'
-import { useSettings } from '../hooks/useSettings'
-import { getEvent } from '../lib/events'
+import { useSettings } from '../../hooks/useSettings'
+import { getEvent } from '../../lib/events'
 
 interface Props {
   solve: Solve

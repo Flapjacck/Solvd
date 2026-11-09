@@ -1,11 +1,11 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db, type Session, type Solve } from '../lib/db'
-import { EVENTS, getEvent } from '../lib/events'
-import { EMPTY_FILTERS, filterSolves, type SolveFilters } from '../lib/search'
-import { formatDateLong, formatDateShort, formatSolve } from '../lib/time'
-import { useSettings } from '../hooks/useSettings'
-import { Modal } from './Modal'
+import { db, type Session, type Solve } from '../../lib/db'
+import { EVENTS, getEvent } from '../../lib/events'
+import { EMPTY_FILTERS, filterSolves, type SolveFilters } from '../../lib/search'
+import { formatDateLong, formatDateShort, formatSolve } from '../../lib/time'
+import { useSettings } from '../../hooks/useSettings'
+import { Modal } from '../ui/Modal'
 import { SolveDetail } from './SolveDetail'
 
 const PAGE_SIZE = 50

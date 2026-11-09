@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
-import type { TimerState } from '../hooks/useTimer'
-import { getTimerFont, loadTimerFont } from '../lib/fonts'
-import { formatMs, INSPECTION_DNF_MS, INSPECTION_MS, type Precision } from '../lib/time'
+import type { TimerState } from '../../hooks/useTimer'
+import { getTimerFont, loadTimerFont } from '../../lib/fonts'
+import { formatMs, INSPECTION_DNF_MS, INSPECTION_MS, type Precision } from '../../lib/time'
 
 interface Props {
   state: TimerState

@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import type { Session } from '../lib/db'
-import { ConfirmButton } from './ConfirmButton'
+import type { Session } from '../../lib/db'
+import { ConfirmButton } from '../ui/ConfirmButton'
 import { EventPicker } from './EventPicker'
 
 interface Props {

@@ -1,6 +1,6 @@
-import type { Solve } from '../lib/db'
-import { formatDateLong, formatDateShort, formatSolve } from '../lib/time'
-import { useSettings } from '../hooks/useSettings'
+import type { Solve } from '../../lib/db'
+import { formatDateLong, formatDateShort, formatSolve } from '../../lib/time'
+import { useSettings } from '../../hooks/useSettings'
 
 interface Props {
   solves: Solve[]

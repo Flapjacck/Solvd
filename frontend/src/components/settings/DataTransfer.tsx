@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { downloadExport, ImportError, importText, type ImportSummary } from '../lib/transfer'
+import { downloadExport, ImportError, importText, type ImportSummary } from '../../lib/transfer'
 
 type Status =
   | { kind: 'idle' }

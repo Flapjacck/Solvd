@@ -1,5 +1,5 @@
-import type { Solve } from '../lib/db'
-import { formatSolve, type Precision } from '../lib/time'
+import type { Solve } from '../../lib/db'
+import { formatSolve, type Precision } from '../../lib/time'
 import { SolveActions } from './SolveActions'
 
 interface Props {

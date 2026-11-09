@@ -1,4 +1,4 @@
-import { EVENTS } from '../lib/events'
+import { EVENTS } from '../../lib/events'
 
 interface Props {
   value: string
