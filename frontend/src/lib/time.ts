@@ -30,19 +30,29 @@ export function formatSolve(ms: number, penalty: Penalty, precision: Precision =
 }
 
 /**
- * WCA-style average of the last n solves: drop best and worst, mean the rest.
- * More than one DNF in the window makes the average DNF. Returns undefined if not enough solves.
+ * How many solves an average of n drops from each end: 5% rounded up, like csTimer.
+ * ao5 and ao12 drop 1 (the WCA rule), ao50 drops 3, ao100 drops 5.
+ */
+export function averageTrim(n: number): number {
+  return Math.ceil(n * 0.05)
+}
+
+/**
+ * WCA-style average of the last n solves (newest first): drop the best and worst
+ * averageTrim(n) times, mean the rest. More DNFs than that make the average DNF.
+ * Returns undefined if there aren't n solves yet.
  */
 export function averageOf(times: (number | null)[], n: number): number | null | undefined {
   if (times.length < n) return undefined
+  const trim = averageTrim(n)
   const window = times.slice(0, n)
   const dnfs = window.filter((t) => t === null).length
-  if (dnfs > 1) return null
-  const sorted = window
+  if (dnfs > trim) return null
+  const kept = window
     .map((t) => (t === null ? Infinity : t))
     .sort((a, b) => a - b)
-    .slice(1, -1)
-  return sorted.reduce((a, b) => a + b, 0) / sorted.length
+    .slice(trim, n - trim)
+  return kept.reduce((a, b) => a + b, 0) / kept.length
 }
 
 export function formatStat(v: number | null | undefined, precision: Precision = 2): string {

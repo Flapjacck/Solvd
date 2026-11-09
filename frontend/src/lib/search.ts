@@ -31,7 +31,7 @@ export const EMPTY_FILTERS: SolveFilters = {
 }
 
 /** Local midnight of a yyyy-mm-dd date, or undefined if blank/invalid */
-function dayStart(value: string): number | undefined {
+export function dayStart(value: string): number | undefined {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
   if (!m) return undefined
   return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).getTime()

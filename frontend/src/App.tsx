@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { Suspense, lazy, useCallback, useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { localStore, type Solve } from './lib/db'
 import type { Penalty } from './lib/time'
@@ -20,6 +20,9 @@ import { TimerDisplay } from './components/timer/TimerDisplay'
 import { Scramble } from './components/timer/Scramble'
 import { ScramblePreview } from './components/timer/ScramblePreview'
 import { DEFAULT_EVENT, getEvent } from './lib/events'
+
+// charts and stats tables load on first open, so they don't weigh down the timer
+const StatsView = lazy(() => import('./components/stats/StatsView').then((m) => ({ default: m.StatsView })))
 
 export default function App() {
   const settings = useSettings()
@@ -51,9 +54,10 @@ export default function App() {
 
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [allOpen, setAllOpen] = useState(false)
+  const [statsOpen, setStatsOpen] = useState(false)
   // phones: the sidebar is a drawer
   const [menuOpen, setMenuOpen] = useState(false)
-  const dialogOpen = !!selected || settingsOpen || allOpen || menuOpen
+  const dialogOpen = !!selected || settingsOpen || allOpen || statsOpen || menuOpen
 
   const timer = useTimer(onStop, {
     disabled: dialogOpen,
@@ -83,6 +87,15 @@ export default function App() {
         <header className="flex items-baseline justify-between">
           <h1 className="text-xl font-bold">Solvd</h1>
           <div className="flex gap-3 text-sm">
+            <button
+              className="underline"
+              onClick={() => {
+                setMenuOpen(false)
+                setStatsOpen(true)
+              }}
+            >
+              stats
+            </button>
             <button
               className="underline"
               onClick={() => {
@@ -218,6 +231,12 @@ export default function App() {
       {settingsOpen && <SettingsDialog onClose={() => setSettingsOpen(false)} />}
 
       {allOpen && <AllSolves sessions={sessions.sessions} onClose={() => setAllOpen(false)} />}
+
+      {statsOpen && (
+        <Suspense fallback={null}>
+          <StatsView sessions={sessions.sessions} onClose={() => setStatsOpen(false)} />
+        </Suspense>
+      )}
     </div>
   )
 }
