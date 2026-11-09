@@ -12,8 +12,17 @@ export interface Solve {
   notes: string // free text, '' when empty
 }
 
+export interface Session {
+  id: string // UUID ('default' for the first session)
+  name: string
+  createdAt: number // epoch ms
+}
+
+export const DEFAULT_SESSION: Session = { id: 'default', name: 'Session 1', createdAt: 0 }
+
 const db = new Dexie('solvd') as Dexie & {
   solves: EntityTable<Solve, 'id'>
+  sessions: EntityTable<Session, 'id'>
 }
 
 db.version(1).stores({
@@ -31,6 +40,16 @@ db.version(2)
         solve.notes ??= ''
       }),
   )
+
+// v3: sessions table. Existing solves already use session 'default', so give it a row.
+db.version(3)
+  .stores({ solves: 'id, createdAt, event, session', sessions: 'id, createdAt' })
+  .upgrade((tx) => tx.table('sessions').add({ ...DEFAULT_SESSION, createdAt: Date.now() }))
+
+// Brand new database: start with one session
+db.on('populate', (tx) => {
+  void tx.table('sessions').add({ ...DEFAULT_SESSION, createdAt: Date.now() })
+})
 
 export type NewSolve = Omit<Solve, 'id' | 'createdAt' | 'notes'> & { notes?: string }
 export type SolveChanges = Partial<Pick<Solve, 'penalty' | 'notes'>>
@@ -68,6 +87,36 @@ export const localStore: SolveStore = {
   },
   async clear(session = 'default') {
     await db.solves.where('session').equals(session).delete()
+  },
+}
+
+/** Session storage. Same idea as SolveStore: swap for an API later. */
+export interface SessionStore {
+  list(): Promise<Session[]>
+  add(name: string): Promise<Session>
+  rename(id: string, name: string): Promise<void>
+  /** Deletes the session and all of its solves. Refuses to delete the last session. */
+  remove(id: string): Promise<void>
+}
+
+export const localSessions: SessionStore = {
+  async list() {
+    return db.sessions.orderBy('createdAt').toArray()
+  },
+  async add(name) {
+    const session: Session = { id: crypto.randomUUID(), name, createdAt: Date.now() }
+    await db.sessions.add(session)
+    return session
+  },
+  async rename(id, name) {
+    await db.sessions.update(id, { name })
+  },
+  async remove(id) {
+    await db.transaction('rw', db.sessions, db.solves, async () => {
+      if ((await db.sessions.count()) <= 1) throw new Error("Can't delete the only session")
+      await db.solves.where('session').equals(id).delete()
+      await db.sessions.delete(id)
+    })
   },
 }
 
