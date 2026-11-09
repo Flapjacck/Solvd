@@ -7,6 +7,7 @@ import { ConfirmButton } from './ConfirmButton'
 import { Modal } from './Modal'
 import { OptionGroup } from './OptionGroup'
 import { Toggle } from './Toggle'
+import { DataTransfer } from './DataTransfer'
 
 const PRECISION_OPTIONS = [
   { value: 2, label: '0.01' },
@@ -105,6 +106,11 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
             </div>
           ))}
         </dl>
+      </section>
+
+      <section className="flex flex-col gap-2 text-sm">
+        <h3 className="font-bold">Data</h3>
+        <DataTransfer />
       </section>
 
       <ConfirmButton className="self-start text-sm underline" confirmLabel="yes, reset" onConfirm={resetSettings}>
