@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { DEFAULT_SESSION, localSessions, type Session } from '../lib/db'
+import { DEFAULT_EVENT } from '../lib/events'
 
 const ACTIVE_KEY = 'solvd.activeSession'
 
@@ -18,13 +19,15 @@ export function useSessions() {
     setActiveId(id)
   }, [])
 
+  // New sessions start on the same event as the current one
   const create = useCallback(async () => {
-    const session = await localSessions.add(nextName(sessions))
+    const session = await localSessions.add(nextName(sessions), active?.event ?? DEFAULT_EVENT)
     select(session.id)
     return session
-  }, [sessions, select])
+  }, [sessions, active, select])
 
   const rename = useCallback((id: string, name: string) => localSessions.rename(id, name), [])
+  const setEvent = useCallback((id: string, event: string) => localSessions.setEvent(id, event), [])
 
   const remove = useCallback(
     async (id: string) => {
@@ -37,7 +40,7 @@ export function useSessions() {
     [active, sessions, select],
   )
 
-  return { sessions, active, loading: live === undefined, select, create, rename, remove }
+  return { sessions, active, loading: live === undefined, select, create, rename, setEvent, remove }
 }
 
 /** "Session N" with N one past the highest existing number */
