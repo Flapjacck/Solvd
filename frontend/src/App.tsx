@@ -23,8 +23,11 @@ export default function App() {
   const sessionId = sessions.active?.id
   const event = getEvent(sessions.active?.event ?? DEFAULT_EVENT)
 
-  // Re-renders automatically whenever the solves table changes
-  const liveSolves = useLiveQuery(async () => (sessionId ? localStore.list(sessionId) : []), [sessionId])
+  // This session's solves for the picked event. Re-renders whenever the solves table changes.
+  const liveSolves = useLiveQuery(
+    async () => (sessionId ? localStore.list(sessionId, event.id) : []),
+    [sessionId, event.id],
+  )
   const solves: Solve[] = useMemo(() => liveSolves ?? [], [liveSolves])
   const { scramble, loading, next } = useScramble(event.id)
 
@@ -81,7 +84,6 @@ export default function App() {
         <SessionBar
           sessions={sessions.sessions}
           active={sessions.active}
-          solveCount={solves.length}
           onSelect={sessions.select}
           onCreate={() => void sessions.create()}
           onRename={(id, name) => void sessions.rename(id, name)}

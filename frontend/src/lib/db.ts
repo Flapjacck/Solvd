@@ -17,7 +17,7 @@ export interface Session {
   id: string // UUID ('default' for the first session)
   name: string
   createdAt: number // epoch ms
-  event: string // cubing.js event id, e.g. "333", "pyram"
+  event: string // last picked event (cubing.js id, e.g. "333", "pyram"); each solve keeps its own
 }
 
 export const DEFAULT_SESSION: Session = { id: 'default', name: 'Session 1', createdAt: 0, event: DEFAULT_EVENT }
@@ -60,6 +60,10 @@ db.version(4)
       }),
   )
 
+// v5: index solves by session + event, so a session can hold several events
+// and each event's list and stats load on their own
+db.version(5).stores({ solves: 'id, createdAt, event, session, [session+event]', sessions: 'id, createdAt' })
+
 // Brand new database: start with one session
 db.on('populate', (tx) => {
   void tx.table('sessions').add({ ...DEFAULT_SESSION, createdAt: Date.now() })
@@ -74,7 +78,8 @@ export type SolveChanges = Partial<Pick<Solve, 'penalty' | 'notes'>>
  */
 export interface SolveStore {
   add(solve: NewSolve): Promise<Solve>
-  list(session?: string): Promise<Solve[]>
+  /** Newest first. With an event, only that event's solves in the session. */
+  list(session?: string, event?: string): Promise<Solve[]>
   get(id: string): Promise<Solve | undefined>
   update(id: string, changes: SolveChanges): Promise<void>
   remove(id: string): Promise<void>
@@ -87,8 +92,11 @@ export const localStore: SolveStore = {
     await db.solves.add(solve)
     return solve
   },
-  async list(session = 'default') {
-    return db.solves.where('session').equals(session).reverse().sortBy('createdAt')
+  async list(session = 'default', event) {
+    const query = event
+      ? db.solves.where('[session+event]').equals([session, event])
+      : db.solves.where('session').equals(session)
+    return query.reverse().sortBy('createdAt')
   },
   async get(id) {
     return db.solves.get(id)
