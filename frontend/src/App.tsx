@@ -62,7 +62,7 @@ export default function App() {
   })
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 p-6 font-mono">
+    <div className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 p-6">
       <header className="flex items-baseline justify-between">
         <h1 className="text-xl font-bold">Solvd</h1>
         <nav className="flex gap-4">

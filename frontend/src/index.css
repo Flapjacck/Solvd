@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+/* Fonts are loaded from Google Fonts in index.html */
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-timer: "Orbitron", ui-monospace, monospace;
+}
