@@ -15,6 +15,7 @@ import { useSettings } from './hooks/useSettings'
 import { useShortcuts } from './hooks/useShortcuts'
 import { useTheme } from './hooks/useTheme'
 import { SettingsDialog } from './components/SettingsDialog'
+import { AllSolves } from './components/AllSolves'
 import { TimerDisplay } from './components/TimerDisplay'
 import { Scramble } from './components/Scramble'
 import { ScramblePreview } from './components/ScramblePreview'
@@ -49,9 +50,10 @@ export default function App() {
   const selected = selectedIndex >= 0 ? solves[selectedIndex] : undefined
 
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [allOpen, setAllOpen] = useState(false)
   // phones: the sidebar is a drawer
   const [menuOpen, setMenuOpen] = useState(false)
-  const dialogOpen = !!selected || settingsOpen || menuOpen
+  const dialogOpen = !!selected || settingsOpen || allOpen || menuOpen
 
   const timer = useTimer(onStop, {
     disabled: dialogOpen,
@@ -80,9 +82,20 @@ export default function App() {
       <Sidebar focus={focus} open={menuOpen} onClose={() => setMenuOpen(false)}>
         <header className="flex items-baseline justify-between">
           <h1 className="text-xl font-bold">Solvd</h1>
-          <button className="text-sm underline" onClick={() => setSettingsOpen(true)}>
-            settings
-          </button>
+          <div className="flex gap-3 text-sm">
+            <button
+              className="underline"
+              onClick={() => {
+                setMenuOpen(false)
+                setAllOpen(true)
+              }}
+            >
+              all solves
+            </button>
+            <button className="underline" onClick={() => setSettingsOpen(true)}>
+              settings
+            </button>
+          </div>
         </header>
 
         {sessions.active && (
@@ -203,6 +216,8 @@ export default function App() {
       )}
 
       {settingsOpen && <SettingsDialog onClose={() => setSettingsOpen(false)} />}
+
+      {allOpen && <AllSolves sessions={sessions.sessions} onClose={() => setAllOpen(false)} />}
     </div>
   )
 }

@@ -4,10 +4,12 @@ interface Props {
   title: string
   onClose: () => void
   children: ReactNode
+  /** Tailwind max-width class, e.g. 'max-w-3xl' for a wider dialog */
+  width?: string
 }
 
 /** Native <dialog> modal with a title and close button. Esc and "close" both call onClose. */
-export function Modal({ title, onClose, children }: Props) {
+export function Modal({ title, onClose, children, width = 'max-w-lg' }: Props) {
   const ref = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -17,7 +19,7 @@ export function Modal({ title, onClose, children }: Props) {
   return (
     <dialog
       ref={ref}
-      className="m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto bg-white p-4 text-gray-900 backdrop:bg-black/40 dark:bg-neutral-900 dark:text-gray-100 dark:backdrop:bg-black/60"
+      className={`m-auto max-h-[90dvh] w-[calc(100%-2rem)] ${width} overflow-y-auto bg-white p-4 text-gray-900 backdrop:bg-black/40 dark:bg-neutral-900 dark:text-gray-100 dark:backdrop:bg-black/60`}
       onCancel={(e) => {
         e.preventDefault() // let the parent decide (e.g. save first)
         onClose()
