@@ -28,8 +28,30 @@ export function TimerDisplay({ state, elapsed, inspecting, inspectElapsed, hideW
   const warn = inspecting && !color && inspectElapsed >= 8000 ? 'text-orange-500' : ''
 
   return (
-    <span className={`font-timer text-7xl font-bold tabular-nums ${color || warn}`} aria-live="off">
-      {text}
+    <span className={`font-timer text-7xl font-bold ${color || warn}`} aria-live="off" aria-label={text}>
+      <FixedDigits text={text} />
     </span>
+  )
+}
+
+/**
+ * Orbitron has no tabular (fixed-width) digits, so a running time would jitter
+ * as "1" and "8" change width. Give each digit its own fixed-width box instead.
+ */
+function FixedDigits({ text }: { text: string }) {
+  return (
+    <>
+      {[...text].map((ch, i) =>
+        /\d/.test(ch) ? (
+          <span key={i} className="inline-block w-[0.85em] text-center" aria-hidden>
+            {ch}
+          </span>
+        ) : (
+          <span key={i} aria-hidden>
+            {ch}
+          </span>
+        ),
+      )}
+    </>
   )
 }
