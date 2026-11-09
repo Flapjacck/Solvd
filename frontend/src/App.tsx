@@ -137,10 +137,10 @@ export default function App() {
         </p>
       </Sidebar>
 
-      {/* Scramble pinned to the top, timer centred in what's left (or the whole screen in focus).
+      {/* Scramble at the top, timer centred in the space below it (the whole screen in focus).
           Also the touch area for phones: touch and hold, release to start, tap to stop. */}
       <main
-        className="relative flex min-w-0 flex-1 select-none items-center justify-center"
+        className="flex min-w-0 flex-1 select-none flex-col overflow-hidden"
         onTouchStart={(e) => {
           e.preventDefault()
           timer.press()
@@ -151,19 +151,21 @@ export default function App() {
         }}
       >
         {!focus && (
-          <div className="absolute inset-x-0 top-0 p-8">
+          <div className="shrink-0 p-8" data-scramble>
             <Scramble scramble={scramble} loading={loading} />
           </div>
         )}
-        <TimerDisplay
-          state={timer.state}
-          elapsed={timer.elapsed}
-          inspecting={timer.inspecting}
-          inspectElapsed={timer.inspectElapsed}
-          hideWhileSolving={settings.hideTimerWhileSolving}
-          precision={settings.precision}
-          fontId={settings.timerFont}
-        />
+        <div className="flex min-h-0 flex-1 items-center justify-center">
+          <TimerDisplay
+            state={timer.state}
+            elapsed={timer.elapsed}
+            inspecting={timer.inspecting}
+            inspectElapsed={timer.inspectElapsed}
+            hideWhileSolving={settings.hideTimerWhileSolving}
+            precision={settings.precision}
+            fontId={settings.timerFont}
+          />
+        </div>
       </main>
 
       {selected && (

@@ -50,7 +50,7 @@ export function ScramblePreview({ puzzle, scramble, visualization, hidden }: Pro
   return (
     <div
       ref={host}
-      className={`mx-auto h-44 w-64 ${hidden || !scramble ? 'invisible' : ''}`}
+      className={`mx-auto h-36 w-56 ${hidden || !scramble ? 'invisible' : ''}`}
       role="img"
       aria-label={`${puzzle} after the scramble`}
     />
