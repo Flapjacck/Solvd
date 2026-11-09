@@ -30,17 +30,6 @@ pnpm install
 pnpm dev
 ```
 
-## Deploying to Vercel
-
-The site is a static Vite build, so it deploys to Vercel as-is.
-
-1. Import the repo in Vercel and set the **Root Directory** to `frontend`. The framework is detected as Vite, and `frontend/vercel.json` sets the install and build commands, the output folder (`dist`), security headers and long-lived caching for the hashed assets.
-2. Add the domain `solvd.spencerkelly.ca` under the project's Domains settings, then add the DNS record Vercel shows for it (for a subdomain this is a CNAME to `cname.vercel-dns.com`).
-3. Every push to `main` deploys to production, and every PR gets a preview URL.
-
-Node 20.19+ or 22.12+ is required (set in `engines`). pnpm comes from the `packageManager` field.
-
-The canonical URL, Open Graph tags, `robots.txt` and `sitemap.xml` all point at `https://solvd.spencerkelly.ca`. If the domain changes, update `frontend/index.html` and the two files in `frontend/public/`.
 
 ## Credits
 
