@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie'
 import type { Penalty } from './time'
+import { DEFAULT_EVENT } from './events'
 
 export interface Solve {
   id: string // UUID, so solves can be synced to a server later
@@ -16,9 +17,10 @@ export interface Session {
   id: string // UUID ('default' for the first session)
   name: string
   createdAt: number // epoch ms
+  event: string // cubing.js event id, e.g. "333", "pyram"
 }
 
-export const DEFAULT_SESSION: Session = { id: 'default', name: 'Session 1', createdAt: 0 }
+export const DEFAULT_SESSION: Session = { id: 'default', name: 'Session 1', createdAt: 0, event: DEFAULT_EVENT }
 
 const db = new Dexie('solvd') as Dexie & {
   solves: EntityTable<Solve, 'id'>
@@ -45,6 +47,18 @@ db.version(2)
 db.version(3)
   .stores({ solves: 'id, createdAt, event, session', sessions: 'id, createdAt' })
   .upgrade((tx) => tx.table('sessions').add({ ...DEFAULT_SESSION, createdAt: Date.now() }))
+
+// v4: each session has an event. Existing sessions were all 3x3.
+db.version(4)
+  .stores({ solves: 'id, createdAt, event, session', sessions: 'id, createdAt' })
+  .upgrade((tx) =>
+    tx
+      .table('sessions')
+      .toCollection()
+      .modify((session: Partial<Session>) => {
+        session.event ??= DEFAULT_EVENT
+      }),
+  )
 
 // Brand new database: start with one session
 db.on('populate', (tx) => {
@@ -93,8 +107,9 @@ export const localStore: SolveStore = {
 /** Session storage. Same idea as SolveStore: swap for an API later. */
 export interface SessionStore {
   list(): Promise<Session[]>
-  add(name: string): Promise<Session>
+  add(name: string, event: string): Promise<Session>
   rename(id: string, name: string): Promise<void>
+  setEvent(id: string, event: string): Promise<void>
   /** Deletes the session and all of its solves. Refuses to delete the last session. */
   remove(id: string): Promise<void>
 }
@@ -103,13 +118,16 @@ export const localSessions: SessionStore = {
   async list() {
     return db.sessions.orderBy('createdAt').toArray()
   },
-  async add(name) {
-    const session: Session = { id: crypto.randomUUID(), name, createdAt: Date.now() }
+  async add(name, event) {
+    const session: Session = { id: crypto.randomUUID(), name, createdAt: Date.now(), event }
     await db.sessions.add(session)
     return session
   },
   async rename(id, name) {
     await db.sessions.update(id, { name })
+  },
+  async setEvent(id, event) {
+    await db.sessions.update(id, { event })
   },
   async remove(id) {
     await db.transaction('rw', db.sessions, db.solves, async () => {
