@@ -2,7 +2,6 @@ import { useState } from 'react'
 import type { Session } from '../lib/db'
 import { ConfirmButton } from './ConfirmButton'
 import { EventPicker } from './EventPicker'
-import { SectionTitle } from './Sidebar'
 
 interface Props {
   sessions: Session[]
@@ -39,9 +38,8 @@ export function SessionBar({
 
   return (
     <div className="flex flex-col gap-2 text-sm">
-      {/* row 1: the "Session" title with the session picker (or rename field) beside it */}
+      {/* row 1: the session picker (or the rename field) */}
       <div className="flex items-center gap-3">
-        <SectionTitle>Session</SectionTitle>
         {renaming ? (
           <form
             className="flex min-w-0 flex-1 gap-2"

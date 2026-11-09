@@ -49,7 +49,9 @@ export default function App() {
   const selected = selectedIndex >= 0 ? solves[selectedIndex] : undefined
 
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const dialogOpen = !!selected || settingsOpen
+  // phones: the sidebar is a drawer
+  const [menuOpen, setMenuOpen] = useState(false)
+  const dialogOpen = !!selected || settingsOpen || menuOpen
 
   const timer = useTimer(onStop, {
     disabled: dialogOpen,
@@ -75,7 +77,7 @@ export default function App() {
 
   return (
     <div className="flex h-dvh overflow-hidden">
-      <Sidebar hidden={focus}>
+      <Sidebar focus={focus} open={menuOpen} onClose={() => setMenuOpen(false)}>
         <header className="flex items-baseline justify-between">
           <h1 className="text-xl font-bold">Solvd</h1>
           <button className="text-sm underline" onClick={() => setSettingsOpen(true)}>
@@ -126,33 +128,52 @@ export default function App() {
         )}
 
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          {settings.inspection && !event.blind
-            ? 'Tap space to inspect, then hold until green and release to start. Any key stops.'
-            : 'Hold space until green, release to start. Any key stops.'}
+          <span className="pointer-coarse:hidden">
+            {settings.inspection && !event.blind
+              ? 'Tap space to inspect, then hold until green and release to start. Any key stops.'
+              : 'Hold space until green, release to start. Any key stops.'}
+          </span>
+          <span className="hidden pointer-coarse:inline">
+            {settings.inspection && !event.blind
+              ? 'Tap the timer to inspect, then hold until green and let go to start. Tap to stop.'
+              : 'Hold the timer until green, let go to start. Tap to stop.'}
+          </span>
         </p>
       </Sidebar>
 
       {/* Scramble at the top, timer centred in the space below it (the whole screen in focus).
-          Also the touch area for phones: touch and hold, release to start, tap to stop. */}
+          The rest of this area is the touch pad on phones: hold, release to start, tap to stop. */}
       <main
-        className="flex min-w-0 flex-1 select-none flex-col overflow-hidden"
-        onTouchStart={(e) => {
+        className="flex min-w-0 flex-1 touch-none select-none flex-col overflow-hidden [-webkit-touch-callout:none]"
+        onPointerDown={(e) => {
+          if (e.pointerType === 'mouse') return // desktop uses the keyboard
           e.preventDefault()
           timer.press()
         }}
-        onTouchEnd={(e) => {
+        onPointerUp={(e) => {
+          if (e.pointerType === 'mouse') return
           e.preventDefault()
           timer.release()
         }}
+        // the browser took the touch (e.g. a system gesture): don't start a solve from it
+        onPointerCancel={(e) => e.pointerType !== 'mouse' && timer.cancel()}
+        onContextMenu={(e) => e.preventDefault()} // long press shouldn't open a menu
       >
         {!focus && (
           <div
-            className="flex shrink-0 flex-col items-center gap-3 p-8"
+            className="relative flex shrink-0 touch-auto flex-col items-center gap-3 p-4 pt-12 md:p-8"
             data-scramble
-            // taps here (e.g. new scramble) shouldn't start the timer
-            onTouchStart={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => e.stopPropagation()}
+            // taps here (menu, new scramble) shouldn't start the timer
+            onPointerDown={(e) => e.stopPropagation()}
+            onPointerUp={(e) => e.stopPropagation()}
           >
+            <button
+              type="button"
+              className="absolute top-3 left-4 text-sm underline md:hidden"
+              onClick={() => setMenuOpen(true)}
+            >
+              menu
+            </button>
             <Scramble scramble={scramble} loading={loading} />
             <button className="text-sm text-gray-500 underline dark:text-gray-400" onClick={next}>
               new scramble

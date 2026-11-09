@@ -1,21 +1,35 @@
 import type { ReactNode } from 'react'
 
 interface Props {
-  hidden: boolean
+  /** Solving or inspecting: hide the sidebar so only the timer shows */
+  focus: boolean
+  /** Phones: whether the drawer is pulled out */
+  open: boolean
+  onClose: () => void
   children: ReactNode
 }
 
 /**
- * Left sidebar holding everything except the scramble and timer.
- * Fixed height: only its solve list scrolls, never the page.
+ * Everything except the scramble and timer.
+ * Desktop (md and up): a fixed left column. Phones: a drawer that slides in
+ * from the left over a backdrop, opened from the menu button.
+ * Fixed height either way: only its solve list scrolls, never the page.
  */
-export function Sidebar({ hidden, children }: Props) {
+export function Sidebar({ focus, open, onClose, children }: Props) {
+  // hidden, not unmounted, during focus so the scramble preview isn't rebuilt every solve
   return (
-    <aside
-      className={`flex h-full w-80 shrink-0 flex-col gap-5 overflow-hidden border-r p-4 ${hidden ? 'hidden' : ''}`}
-    >
-      {children}
-    </aside>
+    <>
+      {open && !focus && <div className="fixed inset-0 z-30 bg-black/40 md:hidden" onClick={onClose} aria-hidden />}
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 flex h-full w-[85vw] max-w-80 flex-col gap-5 overflow-hidden border-r bg-white p-4 shadow-xl transition-transform dark:bg-neutral-950 md:static md:z-auto md:w-80 md:shrink-0 md:translate-x-0 md:shadow-none ${open ? 'translate-x-0' : '-translate-x-full'} ${focus ? 'hidden' : ''}`}
+        aria-label="menu"
+      >
+        <button type="button" className="self-end text-sm underline md:hidden" onClick={onClose}>
+          close
+        </button>
+        {children}
+      </aside>
+    </>
   )
 }
 
