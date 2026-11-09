@@ -6,8 +6,6 @@ import { EventPicker } from './EventPicker'
 interface Props {
   sessions: Session[]
   active: Session
-  /** Solves in the active session (the event is locked once there are any) */
-  solveCount: number
   onSelect: (id: string) => void
   onCreate: () => void
   onRename: (id: string, name: string) => void
@@ -19,7 +17,6 @@ interface Props {
 export function SessionBar({
   sessions,
   active,
-  solveCount,
   onSelect,
   onCreate,
   onRename,
@@ -84,7 +81,7 @@ export function SessionBar({
               </option>
             ))}
           </select>
-          <EventPicker value={active.event} locked={solveCount > 0} onChange={(ev) => onEventChange(active.id, ev)} />
+          <EventPicker value={active.event} onChange={(ev) => onEventChange(active.id, ev)} />
           <button type="button" className="underline" onClick={onCreate}>
             new
           </button>
