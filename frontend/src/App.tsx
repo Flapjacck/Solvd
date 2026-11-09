@@ -17,6 +17,7 @@ import { useTheme } from './hooks/useTheme'
 import { SettingsDialog } from './components/settings/SettingsDialog'
 import { AllSolves } from './components/solves/AllSolves'
 import { TimerDisplay } from './components/timer/TimerDisplay'
+import { GitHubLink } from './components/ui/GitHubLink'
 import { Scramble } from './components/timer/Scramble'
 import { ScramblePreview } from './components/timer/ScramblePreview'
 import { DEFAULT_EVENT, getEvent } from './lib/events'
@@ -170,7 +171,7 @@ export default function App() {
       {/* Scramble at the top, timer centred in the space below it (the whole screen in focus).
           The rest of this area is the touch pad on phones: hold, release to start, tap to stop. */}
       <main
-        className="flex min-w-0 flex-1 touch-none select-none flex-col overflow-hidden [-webkit-touch-callout:none]"
+        className="relative flex min-w-0 flex-1 touch-none select-none flex-col overflow-hidden [-webkit-touch-callout:none]"
         onPointerDown={(e) => {
           if (e.pointerType === 'mouse') return // desktop uses the keyboard
           e.preventDefault()
@@ -217,6 +218,8 @@ export default function App() {
             fontId={settings.timerFont}
           />
         </div>
+        {/* hidden while solving so the timer is the only thing on screen */}
+        {!focus && <GitHubLink className="absolute right-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))]" />}
       </main>
 
       {selected && (
