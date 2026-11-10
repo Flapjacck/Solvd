@@ -8,6 +8,7 @@ import { Modal } from '../ui/Modal'
 import { OptionGroup } from '../ui/OptionGroup'
 import { Toggle } from '../ui/Toggle'
 import { DataTransfer } from './DataTransfer'
+import { SoundSettings } from './SoundSettings'
 
 const PRECISION_OPTIONS = [
   { value: 2, label: '0.01' },
@@ -86,6 +87,8 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
           onChange={(precision) => updateSettings({ precision })}
         />
       </section>
+
+      <SoundSettings s={s} />
 
       <section className="flex flex-col gap-2 text-sm">
         <h3 className="font-bold">Keyboard</h3>

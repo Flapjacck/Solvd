@@ -1,7 +1,7 @@
 import { Suspense, lazy, useCallback, useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { localStore, type Solve } from './lib/db'
-import type { Penalty } from './lib/time'
+import { effectiveMs, type Penalty } from './lib/time'
 import { SolveList } from './components/solves/SolveList'
 import { SolveDetail } from './components/solves/SolveDetail'
 import { LastSolve } from './components/solves/LastSolve'
@@ -14,6 +14,8 @@ import { useTimer } from './hooks/useTimer'
 import { useSettings } from './hooks/useSettings'
 import { useShortcuts } from './hooks/useShortcuts'
 import { useTheme } from './hooks/useTheme'
+import { useAudioUnlock } from './hooks/useAudioUnlock'
+import { playFinishCue, useSoundCues } from './hooks/useSoundCues'
 import { SettingsDialog } from './components/settings/SettingsDialog'
 import { AllSolves } from './components/solves/AllSolves'
 import { TimerDisplay } from './components/timer/TimerDisplay'
@@ -43,10 +45,11 @@ export default function App() {
   const onStop = useCallback(
     async (ms: number, penalty: Penalty) => {
       if (!sessionId) return
+      playFinishCue(settings, effectiveMs(ms, penalty), solves)
       await localStore.add({ timeMs: ms, penalty, scramble, event: event.id, session: sessionId })
       next()
     },
-    [scramble, next, sessionId, event.id],
+    [scramble, next, sessionId, event.id, settings, solves],
   )
 
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -66,6 +69,8 @@ export default function App() {
     inspection: settings.inspection && !event.blind,
     holdMs: settings.holdMs,
   })
+  useAudioUnlock(settings.sound)
+  useSoundCues(timer, settings, solves)
 
   const last = solves[0]
   const [confirmingDelete, setConfirmingDelete] = useState(false)
