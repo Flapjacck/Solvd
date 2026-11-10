@@ -29,7 +29,17 @@ cd frontend
 pnpm install
 pnpm dev
 ```
+## Docker
 
+The static site can also run as a container: a multi-stage build (Node builds it, nginx serves it) that runs as a non-root user on port 8080.
+
+```bash
+cd frontend
+docker build -t solvd-frontend .
+docker run --rm -p 8080:8080 solvd-frontend
+```
+
+Then open http://localhost:8080. `GET /healthz` returns `ok` for health checks. The nginx config is in `frontend/nginx/`.
 
 ## Credits
 
