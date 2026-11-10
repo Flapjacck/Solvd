@@ -15,6 +15,13 @@ export interface Settings {
   timerFont: TimerFontId
   theme: Theme
   scramblePreview: ScramblePreview
+  sound: boolean // master switch for audio cues (off by default)
+  soundVolume: number // 0 to 1
+  soundInspection: boolean // beeps at 8s, 12s and 15s of inspection
+  soundThreshold: SoundThreshold // beep once when the running time passes this
+  soundThresholdMs: number // target for soundThreshold 'custom'
+  soundFinish: boolean // short beep when a solve stops
+  soundPb: boolean // fanfare for a new best single in this session and event
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -26,10 +33,20 @@ export const DEFAULT_SETTINGS: Settings = {
   timerFont: DEFAULT_TIMER_FONT,
   theme: 'system',
   scramblePreview: '2D',
+  sound: false,
+  soundVolume: 0.6,
+  soundInspection: true,
+  soundThreshold: 'off',
+  soundThresholdMs: 15000,
+  soundFinish: false,
+  soundPb: true,
 }
 
 /** How the scrambled puzzle is drawn under the scramble */
 export type ScramblePreview = 'off' | '2D' | '3D'
+
+/** What the threshold beep compares the running time against */
+export type SoundThreshold = 'off' | 'best' | 'ao5' | 'ao12' | 'custom'
 
 export const HOLD_OPTIONS = [0, 300, 550, 1000] as const
 
